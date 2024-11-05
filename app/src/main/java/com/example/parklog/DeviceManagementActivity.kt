@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
-class MainActivity : AppCompatActivity() {
+class DeviceManagementActivity : AppCompatActivity() {
 
     private val devices = mutableListOf<String>() // 기기명 목록
     private lateinit var dialog: AlertDialog // 다이얼로그 변수
@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.device_management)
 
         val deviceButton: Button = findViewById(R.id.DeviceButton)
 
@@ -141,8 +141,8 @@ class MainActivity : AppCompatActivity() {
                 text = "수정"
                 setOnClickListener {
                     // 수정 로직 (텍스트를 입력받아 변경)
-                    val editDialog = AlertDialog.Builder(this@MainActivity).apply {
-                        val editText = EditText(this@MainActivity).apply {
+                    val editDialog = AlertDialog.Builder(this@DeviceManagementActivity).apply {
+                        val editText = EditText(this@DeviceManagementActivity).apply {
                             setText(deviceName)
                         }
                         setTitle("기기명 수정")
