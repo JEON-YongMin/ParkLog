@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    tools:context=".DeviceManagementActivity">
+    tools:context=".MainActivity">
 
     <!-- 제목 텍스트 -->
     <TextView
@@ -22,12 +22,13 @@
 
     <!-- Device 등록 버튼 -->
 
-    <!-- 기기 목록을 표시할 컨테이너 -->
+    <!-- Parking Location으로 이동 버튼 추가 -->
+
     <Button
         android:id="@+id/DeviceButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="68dp"
         android:backgroundTint="@android:color/holo_red_dark"
         android:text="Device"
         android:textColor="@android:color/white"
@@ -37,17 +38,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/titleText" />
 
-    <LinearLayout
-        android:id="@+id/deviceContainer"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/parkingLocationButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@id/DeviceButton"
+        android:layout_marginTop="104dp"
+        android:backgroundTint="@android:color/holo_blue_dark"
+        android:text="Parking Location"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <!-- 여기 아래에 기기 목록이 동적으로 추가될 예정 -->
-    </LinearLayout>
+        app:layout_constraintTop_toBottomOf="@id/DeviceButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,6 @@
 package com.example.parklog
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -9,7 +10,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
-class DeviceManagementActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val devices = mutableListOf<String>() // 기기명 목록
     private lateinit var dialog: AlertDialog // 다이얼로그 변수
@@ -17,13 +18,20 @@ class DeviceManagementActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.device_management)
+        setContentView(R.layout.activity_main)
 
         val deviceButton: Button = findViewById(R.id.DeviceButton)
+        val parkingLocationButton: Button = findViewById(R.id.parkingLocationButton)
 
-        // 등록 버튼 클릭 시 팝업 창 표시
+        // Device 등록 버튼 클릭 시 팝업 창 표시
         deviceButton.setOnClickListener {
             showAddDeviceDialog()
+        }
+
+        // ParkingLocationActivity로 이동 버튼 클릭 시
+        parkingLocationButton.setOnClickListener {
+            val intent = Intent(this, ParkingLocationActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -141,8 +149,8 @@ class DeviceManagementActivity : AppCompatActivity() {
                 text = "수정"
                 setOnClickListener {
                     // 수정 로직 (텍스트를 입력받아 변경)
-                    val editDialog = AlertDialog.Builder(this@DeviceManagementActivity).apply {
-                        val editText = EditText(this@DeviceManagementActivity).apply {
+                    val editDialog = AlertDialog.Builder(this@MainActivity).apply {
+                        val editText = EditText(this@MainActivity).apply {
                             setText(deviceName)
                         }
                         setTitle("기기명 수정")

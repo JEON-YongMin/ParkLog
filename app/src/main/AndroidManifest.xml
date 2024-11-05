@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- 저장소 쓰기 권한 추가 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,15 +15,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ParkLog"
         tools:targetApi="31">
+
+        <!-- MainActivity를 메인 진입점으로 설정 -->
         <activity
-            android:name=".DeviceManagementActivity"
+            android:name="com.example.parklog.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+        <!-- ParkingLocationActivity 설정 -->
+        <activity
+            android:name="com.example.parklog.ParkingLocationActivity"
+            android:exported="true" />
+
+    </application>
 </manifest>
