@@ -22,6 +22,7 @@ class MainActivity : AppCompatActivity() {
 
         val deviceButton: Button = findViewById(R.id.DeviceButton)
         val parkingLocationButton: Button = findViewById(R.id.parkingLocationButton)
+        val myParkingListButton: Button = findViewById(R.id.myParkingListButton)
 
         // Device 등록 버튼 클릭 시 팝업 창 표시
         deviceButton.setOnClickListener {
@@ -31,6 +32,11 @@ class MainActivity : AppCompatActivity() {
         // ParkingLocationActivity로 이동 버튼 클릭 시
         parkingLocationButton.setOnClickListener {
             val intent = Intent(this, ParkingLocationActivity::class.java)
+            startActivity(intent)
+        }
+
+        myParkingListButton.setOnClickListener {
+            val intent = Intent(this, ParkingLocationList::class.java)
             startActivity(intent)
         }
     }

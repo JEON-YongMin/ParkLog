@@ -16,17 +16,17 @@
         android:paddingEnd="10dp">
 
         <!-- 홈 버튼 추가 -->
-        <ImageView
-            android:id="@+id/home_icon"
+        <ImageButton
+            android:id="@+id/homeButton"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_home"
-            android:contentDescription="Home Icon"
-            android:scaleType="fitCenter"
+            android:contentDescription="Home Button"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintVertical_bias="0.5"/>
+            app:layout_constraintVertical_bias="0.5"
+            android:src="@drawable/ic_home"
+            android:background="@android:color/transparent" />
 
         <!-- ParkLog 로고 -->
 
@@ -39,18 +39,18 @@
             android:contentDescription="ParkLog Logo"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_parklog"
-            app:layout_constraintStart_toEndOf="@id/home_icon"
-            app:layout_constraintEnd_toStartOf="@id/settings_icon"
+            app:layout_constraintStart_toEndOf="@id/homeButton"
+            app:layout_constraintEnd_toStartOf="@id/settingButton"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0" />
 
         <ImageView
-            android:id="@+id/settings_icon"
+            android:id="@+id/settingButton"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_settings"
-            android:contentDescription="Settings Icon"
+            android:contentDescription="Settings Button"
             android:scaleType="fitCenter"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
