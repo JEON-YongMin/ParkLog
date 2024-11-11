@@ -1,14 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFDE7"
     android:padding="0dp"
-    android:fitsSystemWindows="true">
+    tools:context=".MainActivity">
 
-    <!-- 상단 네이비색 바 -->
+    <!-- 상단 바 -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/title_bar"
         android:layout_width="match_parent"
@@ -39,18 +39,18 @@
             android:scaleType="fitCenter"
             android:src="@drawable/ic_parklog"
             app:layout_constraintStart_toEndOf="@id/homeButton"
-            app:layout_constraintEnd_toStartOf="@id/settings_icon"
+            app:layout_constraintEnd_toStartOf="@id/settingButton"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0" />
 
-        <!-- 설정 아이콘 -->
+        <!-- 설정 버튼 -->
         <ImageView
-            android:id="@+id/settings_icon"
+            android:id="@+id/settingButton"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_settings"
-            android:contentDescription="Settings Icon"
+            android:contentDescription="Settings Button"
             android:scaleType="fitCenter"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -71,7 +71,4 @@
         android:backgroundTint="#ECEFF1"
         android:textColor="#3F2A87"
         android:padding="24dp"/>
-
-
-
 </RelativeLayout>

@@ -9,6 +9,18 @@
     tools:context=".MainActivity">
 
     <!-- 상단 네이비색 바 -->
+    <Button
+        android:id="@+id/myParkingListButton2"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/parkingLocationButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:backgroundTint="#ECEFF1"
+        android:text="My Parking List"
+        android:textColor="#3F2A87"
+        android:textSize="18sp" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/title_bar"
         android:layout_width="match_parent"
@@ -45,7 +57,6 @@
         android:fontFamily="sans-serif-medium" />
 
     <!-- 부제목 텍스트 -->
-
     <TextView
         android:id="@+id/subTitleText"
         android:layout_width="wrap_content"
@@ -58,7 +69,6 @@
         android:textSize="16sp" />
 
     <!-- Device 버튼 -->
-
     <Button
         android:id="@+id/DeviceButton"
         android:layout_width="wrap_content"
@@ -71,7 +81,7 @@
         android:textSize="16sp"
         android:layout_below="@id/subTitleText" />
 
-
+    <!-- Save Parking Location 버튼 -->
     <Button
         android:id="@+id/parkingLocationButton"
         android:layout_width="280dp"
@@ -83,7 +93,6 @@
         android:text="Save Parking Location"
         android:textColor="#3F2A87"
         android:textSize="18sp" />
-
 
     <!-- My Parking List 버튼 -->
     <Button
@@ -98,6 +107,16 @@
         android:textColor="#3F2A87"
         android:textSize="18sp" />
 
-
-
+    <!-- CarLog 버튼 추가 -->
+    <Button
+        android:id="@+id/carLogButton"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/myParkingListButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:backgroundTint="#ECEFF1"
+        android:text=" Car Log"
+        android:textColor="#3F2A87"
+        android:textSize="18sp" />
 </RelativeLayout>

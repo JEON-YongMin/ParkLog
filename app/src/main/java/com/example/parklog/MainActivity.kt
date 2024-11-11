@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
         val deviceButton: Button = findViewById(R.id.DeviceButton)
         val parkingLocationButton: Button = findViewById(R.id.parkingLocationButton)
         val myParkingListButton: Button = findViewById(R.id.myParkingListButton)
+        val carLogButton: Button = findViewById(R.id.carLogButton)
 
         // Device 등록 버튼 클릭 시 팝업 창 표시
         deviceButton.setOnClickListener {
@@ -35,8 +36,15 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // MyParkingList로 이동 버튼 클릭 시
         myParkingListButton.setOnClickListener {
             val intent = Intent(this, ParkingLocationList::class.java)
+            startActivity(intent)
+        }
+
+        // CarLogActivity로 이동 버튼 클릭 시
+        carLogButton.setOnClickListener {
+            val intent = Intent(this, CarLogActivity::class.java)
             startActivity(intent)
         }
     }
@@ -64,7 +72,7 @@ class MainActivity : AppCompatActivity() {
                 val deviceName = editText.text.toString()
                 if (deviceName.isNotBlank()) {
                     devices.add(deviceName)
-                    updateDeviceListInDialog() // 목록 갱신
+                    updateDeviceListInDialog()
                     editText.text.clear()
                 }
             }
@@ -78,7 +86,7 @@ class MainActivity : AppCompatActivity() {
         val scrollView = ScrollView(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                400 // 원하는 높이로 설정 (필요에 따라 조정 가능)
+                400
             )
         }
 
@@ -107,7 +115,6 @@ class MainActivity : AppCompatActivity() {
         val cancelButton = Button(this).apply {
             text = "취소"
             setOnClickListener {
-                // 다이얼로그 닫기
                 dialog.dismiss()
             }
             layoutParams = LinearLayout.LayoutParams(

@@ -58,113 +58,114 @@
             app:layout_constraintVertical_bias="0.5"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- 차계부 UI 버튼 -->
     <Button
-        android:id="@+id/btnSaveParkingLocation"
+        android:id="@+id/btnCarLog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/title_bar"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="40dp"
-        android:text="Save Parking Location"
-        android:textSize="18sp"
+        android:text="Car Log"
         android:backgroundTint="#ECEFF1"
         android:textColor="#3F2A87"
+        android:textSize="18sp"
         android:padding="24dp"/>
 
+    <!-- 총 이동 시간 텍스트 -->
     <TextView
-        android:id="@+id/tvLocation"
+        android:id="@+id/tvTotalTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/btnSaveParkingLocation"
+        android:layout_below="@id/btnCarLog"
         android:layout_marginStart="20dp"
         android:layout_marginTop="42dp"
-        android:text="주차 위치"
+        android:text="총 이동 시간"
         android:textColor="#3F2A87" />
 
-    <RelativeLayout
-        android:id="@+id/photoContainer"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_below="@id/tvLocation"
-        android:layout_marginTop="7dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="#FFFFFF"
-        android:padding="10dp">
-
-        <ImageView
-            android:id="@+id/savePhotoText"
-            android:layout_width="361dp"
-            android:layout_height="140dp"
-            android:layout_centerInParent="true"
-            android:contentDescription="Captured Photo"
-            android:scaleType="centerCrop" />
-    </RelativeLayout>
-
-    <ImageButton
-        android:id="@+id/btnCamera"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_alignEnd="@id/photoContainer"
-        android:layout_alignTop="@id/photoContainer"
-        android:layout_marginEnd="6dp"
-        android:layout_marginTop="6dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Open Camera Button"
-        android:scaleType="center"
-        android:src="@drawable/ic_camera" />
-
+    <!-- 총 이동 시간 입력란 -->
     <EditText
-        android:id="@+id/etLocationDescription"
+        android:id="@+id/etTotalTime"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_below="@id/photoContainer"
-        android:layout_marginTop="10dp"
+        android:layout_height="48dp"
+        android:layout_below="@id/tvTotalTime"
         android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
         android:background="#FFFFFF"
+        android:gravity="center"
         android:hint="Type in text"
+        android:padding="10dp"
         android:textColor="#3F2A87"
         android:textColorHint="#BDBDBD"
-        android:padding="10dp"
-        android:gravity="center"
         android:textSize="16sp" />
 
+    <!-- 총 이동 거리 텍스트 -->
     <TextView
-        android:id="@+id/tvFee"
+        android:id="@+id/tvTotalDistance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="주차 요금"
+        android:text="총 이동 거리"
         android:textColor="#3F2A87"
-        android:layout_below="@id/etLocationDescription"
+        android:layout_below="@id/etTotalTime"
         android:layout_marginTop="40dp"
         android:layout_marginStart="20dp"/>
 
+    <!-- 총 이동 거리 입력란 -->
     <EditText
-        android:id="@+id/etFee"
+        android:id="@+id/etTotalDistance"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_below="@id/tvFee"
-        android:layout_marginTop="10dp"
+        android:layout_height="48dp"
+        android:layout_below="@id/tvTotalDistance"
         android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="20dp"
         android:background="#FFFFFF"
+        android:gravity="center"
         android:hint="Type in text"
+        android:padding="10dp"
         android:textColor="#3F2A87"
         android:textColorHint="#BDBDBD"
-        android:padding="10dp"
-        android:gravity="center"
         android:textSize="16sp" />
 
-    <Button
-        android:id="@+id/btnSave"
+    <!-- 주유비 텍스트 -->
+    <TextView
+        android:id="@+id/tvFuelCost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="save"
+        android:text="주유비"
+        android:textColor="#3F2A87"
+        android:layout_below="@id/etTotalDistance"
+        android:layout_marginTop="40dp"
+        android:layout_marginStart="20dp"/>
+
+    <!-- 주유비 입력란 -->
+    <EditText
+        android:id="@+id/etFuelCost"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_below="@id/tvFuelCost"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:hint="Type in text"
+        android:padding="10dp"
+        android:textColor="#3F2A87"
+        android:textColorHint="#BDBDBD"
+        android:textSize="16sp" />
+
+    <!-- 저장 버튼 -->
+    <Button
+        android:id="@+id/btnSaveCarLog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
         android:backgroundTint="#3F2A87"
         android:textColor="#FFFFFF"
         android:padding="12dp"
-        android:layout_below="@id/etFee"
+        android:layout_below="@id/etFuelCost"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"/>
 </RelativeLayout>
