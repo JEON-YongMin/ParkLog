@@ -8,6 +8,7 @@
     android:padding="0dp"
     android:fitsSystemWindows="true">
 
+    <!-- 상단 네이비색 바 -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/title_bar"
         android:layout_width="match_parent"
@@ -16,6 +17,7 @@
         android:paddingStart="10dp"
         android:paddingEnd="10dp">
 
+        <!-- 홈 버튼 -->
         <ImageButton
             android:id="@+id/homeButton"
             android:layout_width="24dp"
@@ -28,6 +30,7 @@
             android:src="@drawable/ic_home"
             android:background="@android:color/transparent" />
 
+        <!-- ParkLog 로고 -->
         <ImageView
             android:id="@+id/logo_icon"
             android:layout_width="wrap_content"
@@ -41,6 +44,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0" />
 
+        <!-- 설정 아이콘 -->
         <ImageView
             android:id="@+id/settings_icon"
             android:layout_width="24dp"
@@ -54,16 +58,20 @@
             app:layout_constraintVertical_bias="0.5"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- My Parking List 버튼 -->
     <Button
         android:id="@+id/btnMyParkingList"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/title_bar"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="40dp"
         android:text="My Parking List"
         android:textSize="18sp"
         android:backgroundTint="#ECEFF1"
         android:textColor="#3F2A87"
         android:padding="24dp"/>
+
+
+
 </RelativeLayout>

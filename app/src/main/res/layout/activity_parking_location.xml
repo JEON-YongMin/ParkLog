@@ -64,7 +64,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/title_bar"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="40dp"
         android:text="Save Parking Location"
         android:textSize="18sp"
         android:backgroundTint="#ECEFF1"
@@ -84,7 +84,7 @@
     <RelativeLayout
         android:id="@+id/photoContainer"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="200dp"
         android:layout_below="@id/tvLocation"
         android:layout_marginTop="7dp"
         android:layout_marginStart="20dp"
@@ -94,8 +94,8 @@
 
         <ImageView
             android:id="@+id/savePhotoText"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="361dp"
+            android:layout_height="140dp"
             android:layout_centerInParent="true"
             android:contentDescription="Captured Photo"
             android:scaleType="centerCrop" />
@@ -137,13 +137,13 @@
         android:text="주차 요금"
         android:textColor="#3F2A87"
         android:layout_below="@id/etLocationDescription"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="40dp"
         android:layout_marginStart="20dp"/>
 
     <EditText
         android:id="@+id/etFee"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="100dp"
         android:layout_below="@id/tvFee"
         android:layout_marginTop="10dp"
         android:layout_marginStart="20dp"
