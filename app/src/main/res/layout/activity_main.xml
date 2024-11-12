@@ -9,22 +9,11 @@
     tools:context=".MainActivity">
 
     <!-- 상단 네이비색 바 -->
-    <Button
-        android:id="@+id/myParkingListButton2"
-        android:layout_width="280dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/parkingLocationButton"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
-        android:backgroundTint="#ECEFF1"
-        android:text="My Parking List"
-        android:textColor="#3F2A87"
-        android:textSize="18sp" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/title_bar"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="70dp"
         android:background="#3F2A87"
         android:paddingStart="10dp"
         android:paddingEnd="10dp">
