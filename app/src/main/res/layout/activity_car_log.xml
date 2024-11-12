@@ -1,0 +1,171 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFDE7"
+    android:padding="0dp"
+    tools:context=".MainActivity">
+
+    <!-- 상단 바 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#3F2A87"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp">
+
+        <!-- 홈 버튼 -->
+        <ImageButton
+            android:id="@+id/homeButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="Home Button"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5"
+            android:src="@drawable/ic_home"
+            android:background="@android:color/transparent" />
+
+        <!-- ParkLog 로고 -->
+        <ImageView
+            android:id="@+id/logo_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="ParkLog Logo"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_parklog"
+            app:layout_constraintStart_toEndOf="@id/homeButton"
+            app:layout_constraintEnd_toStartOf="@id/settingButton"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <!-- 설정 버튼 -->
+        <ImageView
+            android:id="@+id/settingButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_settings"
+            android:contentDescription="Settings Button"
+            android:scaleType="fitCenter"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.5"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 차계부 UI 버튼 -->
+    <Button
+        android:id="@+id/btnCarLog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_bar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:text="Car Log"
+        android:backgroundTint="#ECEFF1"
+        android:textColor="#3F2A87"
+        android:textSize="18sp"
+        android:padding="24dp"/>
+
+    <!-- 총 이동 시간 텍스트 -->
+    <TextView
+        android:id="@+id/tvTotalTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btnCarLog"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="42dp"
+        android:text="총 이동 시간"
+        android:textColor="#3F2A87" />
+
+    <!-- 총 이동 시간 입력란 -->
+    <EditText
+        android:id="@+id/etTotalTime"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_below="@id/tvTotalTime"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:hint="Type in text"
+        android:padding="10dp"
+        android:textColor="#3F2A87"
+        android:textColorHint="#BDBDBD"
+        android:textSize="16sp" />
+
+    <!-- 총 이동 거리 텍스트 -->
+    <TextView
+        android:id="@+id/tvTotalDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="총 이동 거리"
+        android:textColor="#3F2A87"
+        android:layout_below="@id/etTotalTime"
+        android:layout_marginTop="40dp"
+        android:layout_marginStart="20dp"/>
+
+    <!-- 총 이동 거리 입력란 -->
+    <EditText
+        android:id="@+id/etTotalDistance"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_below="@id/tvTotalDistance"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:hint="Type in text"
+        android:padding="10dp"
+        android:textColor="#3F2A87"
+        android:textColorHint="#BDBDBD"
+        android:textSize="16sp" />
+
+    <!-- 주유비 텍스트 -->
+    <TextView
+        android:id="@+id/tvFuelCost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="주유비"
+        android:textColor="#3F2A87"
+        android:layout_below="@id/etTotalDistance"
+        android:layout_marginTop="40dp"
+        android:layout_marginStart="20dp"/>
+
+    <!-- 주유비 입력란 -->
+    <EditText
+        android:id="@+id/etFuelCost"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_below="@id/tvFuelCost"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:hint="Type in text"
+        android:padding="10dp"
+        android:textColor="#3F2A87"
+        android:textColorHint="#BDBDBD"
+        android:textSize="16sp" />
+
+    <!-- 저장 버튼 -->
+    <Button
+        android:id="@+id/btnSaveCarLog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:backgroundTint="#3F2A87"
+        android:textColor="#FFFFFF"
+        android:padding="12dp"
+        android:layout_below="@id/etFuelCost"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"/>
+</RelativeLayout>
