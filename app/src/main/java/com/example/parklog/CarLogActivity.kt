@@ -16,12 +16,13 @@ class CarLogActivity : AppCompatActivity() {
     private lateinit var btnSaveCarLog: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super.onCreate(savedInstanceState) // 초기화
         setContentView(R.layout.activity_car_log)
 
         val homeButton: ImageButton = findViewById(R.id.homeButton)
 
         homeButton.setOnClickListener {
+            // MainActivity로 이동하기 위한 Intent 객체(화면 전환)를 생성
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
@@ -32,7 +33,7 @@ class CarLogActivity : AppCompatActivity() {
         etFuelCost = findViewById(R.id.etFuelCost)
         btnSaveCarLog = findViewById(R.id.btnSaveCarLog)
 
-        // 저장 버튼 클릭 시 차계부 정보 저장
+        // Save 버튼 클릭 시 차계부 정보 저장
         btnSaveCarLog.setOnClickListener {
             Toast.makeText(this, "Successfully saved!", Toast.LENGTH_SHORT).show()
         }

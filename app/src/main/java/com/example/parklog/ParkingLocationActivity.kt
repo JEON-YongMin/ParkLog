@@ -39,7 +39,6 @@ class ParkingLocationActivity : AppCompatActivity() {
         }
 
         saveButton.setOnClickListener {
-
             Toast.makeText(this, "Successfully saved!", Toast.LENGTH_SHORT).show()
             startActivity(intent) // List 페이지로 이동
         }

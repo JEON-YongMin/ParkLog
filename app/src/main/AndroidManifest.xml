@@ -39,7 +39,7 @@
         <!-- CarLogActivity 설정 -->
         <activity
             android:name=".CarLogActivity"
-            android:exported="false" />
+            android:exported="true" />
     </application>
 
 </manifest>
