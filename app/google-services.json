@@ -1,6 +1,10 @@
 {
   "project_info": {
     "project_number": "208009027406",
+<<<<<<< HEAD
+=======
+    "firebase_url": "https://parklog-311ae-default-rtdb.firebaseio.com",
+>>>>>>> master
     "project_id": "parklog-311ae",
     "storage_bucket": "parklog-311ae.firebasestorage.app"
   },

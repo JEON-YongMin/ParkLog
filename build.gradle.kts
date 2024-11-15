@@ -5,3 +5,14 @@ plugins {
     alias(libs.plugins.google.gms.google.services) apply false
 
 }
+
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.google.gms:google-services:4.4.2") // Firebase 연동을 위한 설정
+    }
+}
