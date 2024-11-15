@@ -2,23 +2,28 @@ package com.example.parklog
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.DatabaseReference
 
 class MainActivity : AppCompatActivity() {
 
     private val devices = mutableListOf<String>() // 데이터를 수정할 수 있는 저장 리스트
     private lateinit var dialog: AlertDialog // 대화 상자
     private lateinit var deviceListContainer: LinearLayout // 기기 목록 표시
+    private lateinit var database: DatabaseReference // Firebase Realtime Database 참조
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState) // 초기화
+        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Firebase Realtime Database 초기화
+        database = FirebaseDatabase.getInstance().reference
+
+        // Firebase에서 기존 데이터를 불러오기
+        loadDevicesFromDatabase()
 
         val deviceButton: Button = findViewById(R.id.DeviceButton)
         val parkingLocationButton: Button = findViewById(R.id.parkingLocationButton)
@@ -68,11 +73,12 @@ class MainActivity : AppCompatActivity() {
                     devices.add(deviceName)
                     updateDeviceListInDialog()
                     editText.text.clear()
+                    saveDeviceToDatabase(deviceName) // Firebase Realtime Database에 저장
                 }
             }
         }
 
-        inputLayout.addView(editText) // inputLayout 안에 editText 포함
+        inputLayout.addView(editText)
         inputLayout.addView(addButton)
         dialogLayout.addView(inputLayout)
 
@@ -89,7 +95,7 @@ class MainActivity : AppCompatActivity() {
         scrollView.addView(deviceListContainer)
         dialogLayout.addView(scrollView)
 
-        updateDeviceListInDialog() // 초기 기기 목록
+        updateDeviceListInDialog()
 
         val buttonLayout = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -97,7 +103,7 @@ class MainActivity : AppCompatActivity() {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { // layoutParams 객체의 내부 속성을 설정
+            ).apply {
                 setMargins(0, 32, 0, 0)
             }
         }
@@ -127,7 +133,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateDeviceListInDialog() {
-
         deviceListContainer.removeAllViews() // 기존 목록 초기화
 
         for (index in devices.indices) {
@@ -157,6 +162,7 @@ class MainActivity : AppCompatActivity() {
                             if (newDeviceName.isNotBlank()) {
                                 devices[index] = newDeviceName
                                 updateDeviceListInDialog()
+                                saveDeviceToDatabase(newDeviceName) // Firebase에 수정된 이름 저장
                             }
                         }
                         setNegativeButton("취소", null)
@@ -168,8 +174,10 @@ class MainActivity : AppCompatActivity() {
             val deleteButton = Button(this).apply {
                 text = "삭제"
                 setOnClickListener {
+                    val deviceToRemove = devices[index]
                     devices.removeAt(index)
                     updateDeviceListInDialog()
+                    removeDeviceFromDatabase(deviceToRemove) // Firebase에서 삭제
                 }
             }
 
@@ -180,4 +188,47 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun saveDeviceToDatabase(deviceName: String) {
+        // Firebase Realtime Database에 기기명을 저장하는 함수
+        database.child("devices").push().setValue(deviceName)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Device saved to database", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to save device to database", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun removeDeviceFromDatabase(deviceName: String) {
+        // Firebase에서 기기명을 삭제하는 함수
+        database.child("devices").orderByValue().equalTo(deviceName)
+            .get().addOnSuccessListener { snapshot ->
+                for (child in snapshot.children) {
+                    child.ref.removeValue()
+                }
+                Toast.makeText(this, "Device removed from database", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to remove device from database", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun loadDevicesFromDatabase() {
+        database.child("devices").get()
+            .addOnSuccessListener { snapshot ->
+                devices.clear() // 기존 데이터를 초기화
+                for (child in snapshot.children) {
+                    val deviceName = child.getValue(String::class.java)
+                    deviceName?.let {
+                        devices.add(it) // Firebase에서 가져온 데이터를 리스트에 추가
+                    }
+                }
+                if (::deviceListContainer.isInitialized) {
+                    updateDeviceListInDialog() // 기기 목록 UI 업데이트
+                }
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(this, "Failed to load devices: ${exception.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
 }

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "208009027406",
+    "firebase_url": "https://parklog-311ae-default-rtdb.firebaseio.com",
+    "project_id": "parklog-311ae",
+    "storage_bucket": "parklog-311ae.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:208009027406:android:6c9b64efd38346f58dc81f",
+        "android_client_info": {
+          "package_name": "com.example.parklog"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuEAFYp52dllnkfx7sHhq6-dfjRtEd4tI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
