@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.parklog"
-        minSdk = 24
+        minSdk = 28
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -52,6 +52,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation ("com.jakewharton.timber:timber:5.0.1")
+    implementation ("com.github.weliem:blessed-kotlin:3.0.7")
     implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

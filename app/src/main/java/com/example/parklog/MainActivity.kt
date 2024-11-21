@@ -1,12 +1,18 @@
 package com.example.parklog
 
+import android.app.Activity
+import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.os.Bundle
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.database.FirebaseDatabase
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
 
@@ -14,6 +20,22 @@ class MainActivity : AppCompatActivity() {
     private lateinit var dialog: AlertDialog // 대화 상자
     private lateinit var deviceListContainer: LinearLayout // 기기 목록 표시
     private lateinit var database: DatabaseReference // Firebase Realtime Database 참조
+    private var permissionRequestInProgress = false
+
+    private val enableBleRequest = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            restartScanning()
+        }
+    }
+
+    private val blePermissionRequest =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            permissionRequestInProgress = false
+            permissions.entries.forEach {
+                Timber.d("${it.key} = ${it.value}")
+            }
+            restartScanning()
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,13 +47,16 @@ class MainActivity : AppCompatActivity() {
         // Firebase에서 기존 데이터를 불러오기
         loadDevicesFromDatabase()
 
+        // BluetoothHandler 초기화
+        BluetoothHandler.initialize(this)
+
         val deviceButton: Button = findViewById(R.id.DeviceButton)
         val parkingLocationButton: Button = findViewById(R.id.parkingLocationButton)
         val myParkingListButton: Button = findViewById(R.id.myParkingListButton)
         val carLogButton: Button = findViewById(R.id.carLogButton)
 
         deviceButton.setOnClickListener {
-            showAddDeviceDialog()
+            showBluetoothScannerDialog()
         }
 
         parkingLocationButton.setOnClickListener {
@@ -50,166 +75,105 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showAddDeviceDialog() {
+    private fun showBluetoothScannerDialog() {
         val dialogLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(32, 32, 32, 32)
         }
 
-        val inputLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-        }
+        val listView = ListView(this)
+        val scannedDevicesAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, mutableListOf<String>())
+        listView.adapter = scannedDevicesAdapter
 
-        val editText = EditText(this).apply {
-            hint = "차량 블루투스 기기명 입력"
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        }
+        dialogLayout.addView(listView)
 
-        val addButton = Button(this).apply {
-            text = "등록"
+        val startScanButton = Button(this).apply {
+            text = "Start Scanning"
             setOnClickListener {
-                val deviceName = editText.text.toString()
-                if (deviceName.isNotBlank()) {
-                    devices.add(deviceName)
-                    updateDeviceListInDialog()
-                    editText.text.clear()
-                    saveDeviceToDatabase(deviceName) // Firebase Realtime Database에 저장
-                }
+                restartScanning()
             }
         }
-
-        inputLayout.addView(editText)
-        inputLayout.addView(addButton)
-        dialogLayout.addView(inputLayout)
-
-        val scrollView = ScrollView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                400
-            )
-        }
-
-        deviceListContainer = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-        }
-        scrollView.addView(deviceListContainer)
-        dialogLayout.addView(scrollView)
-
-        updateDeviceListInDialog()
-
-        val buttonLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            setPadding(0, 16, 0, 0)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                setMargins(0, 32, 0, 0)
-            }
-        }
+        dialogLayout.addView(startScanButton)
 
         val cancelButton = Button(this).apply {
-            text = "취소"
+            text = "Close"
             setOnClickListener {
                 dialog.dismiss()
             }
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                weight = 1f
-            }
         }
-
-        buttonLayout.addView(cancelButton)
-        dialogLayout.addView(buttonLayout)
+        dialogLayout.addView(cancelButton)
 
         dialog = AlertDialog.Builder(this)
-            .setTitle("차량 블루투스 기기 등록")
+            .setTitle("Bluetooth Scanner")
             .setView(dialogLayout)
             .create()
 
         dialog.show()
-    }
 
-    private fun updateDeviceListInDialog() {
-        deviceListContainer.removeAllViews() // 기존 목록 초기화
-
-        for (index in devices.indices) {
-            val deviceName = devices[index]
-
-            val deviceLayout = LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
+        listView.setOnItemClickListener { _, _, position, _ ->
+            val selectedDevice = scannedDevicesAdapter.getItem(position)
+            selectedDevice?.let {
+                saveDeviceToDatabase(it)
+                Toast.makeText(this, "$it saved to Firebase", Toast.LENGTH_SHORT).show()
             }
+        }
 
-            val deviceTextView = TextView(this).apply {
-                text = "${index + 1}. $deviceName"
-                textSize = 16f
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            }
-
-            val editButton = Button(this).apply {
-                text = "수정"
-                setOnClickListener {
-                    val editDialog = AlertDialog.Builder(this@MainActivity).apply {
-                        val editText = EditText(this@MainActivity).apply {
-                            setText(deviceName)
-                        }
-                        setTitle("기기명 수정")
-                        setView(editText)
-                        setPositiveButton("확인") { _, _ ->
-                            val newDeviceName = editText.text.toString()
-                            if (newDeviceName.isNotBlank()) {
-                                devices[index] = newDeviceName
-                                updateDeviceListInDialog()
-                                saveDeviceToDatabase(newDeviceName) // Firebase에 수정된 이름 저장
-                            }
-                        }
-                        setNegativeButton("취소", null)
-                    }.create()
-                    editDialog.show()
+        // Launch a coroutine to collect BluetoothHandler.deviceFlow
+        lifecycleScope.launch {
+            BluetoothHandler.deviceFlow.collect { deviceNames ->
+                runOnUiThread {
+                    scannedDevicesAdapter.clear()
+                    scannedDevicesAdapter.addAll(deviceNames)
+                    scannedDevicesAdapter.notifyDataSetChanged()
                 }
             }
-
-            val deleteButton = Button(this).apply {
-                text = "삭제"
-                setOnClickListener {
-                    val deviceToRemove = devices[index]
-                    devices.removeAt(index)
-                    updateDeviceListInDialog()
-                    removeDeviceFromDatabase(deviceToRemove) // Firebase에서 삭제
-                }
-            }
-
-            deviceLayout.addView(deviceTextView)
-            deviceLayout.addView(editButton)
-            deviceLayout.addView(deleteButton)
-            deviceListContainer.addView(deviceLayout)
         }
     }
 
-    private fun saveDeviceToDatabase(deviceName: String) {
-        // Firebase Realtime Database에 기기명을 저장하는 함수
-        database.child("devices").push().setValue(deviceName)
-            .addOnSuccessListener {
-                Toast.makeText(this, "Device saved to database", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Failed to save device to database", Toast.LENGTH_SHORT).show()
-            }
+    private fun restartScanning() {
+        if (!BluetoothHandler.isBluetoothEnabled()) {
+            Toast.makeText(this, "Bluetooth is not enabled. Please enable it to scan.", Toast.LENGTH_SHORT).show()
+            enableBleRequest.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+            return
+        }
+
+        if (BluetoothHandler.hasPermissions()) {
+            BluetoothHandler.startScanning()
+        } else {
+            Toast.makeText(this, "Permissions are required to scan for devices.", Toast.LENGTH_SHORT).show()
+            requestPermissions()
+        }
     }
 
-    private fun removeDeviceFromDatabase(deviceName: String) {
-        // Firebase에서 기기명을 삭제하는 함수
-        database.child("devices").orderByValue().equalTo(deviceName)
-            .get().addOnSuccessListener { snapshot ->
-                for (child in snapshot.children) {
-                    child.ref.removeValue()
-                }
-                Toast.makeText(this, "Device removed from database", Toast.LENGTH_SHORT).show()
+    private fun requestPermissions() {
+        val missingPermissions = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            arrayOf(
+                android.Manifest.permission.BLUETOOTH_SCAN,
+                android.Manifest.permission.BLUETOOTH_CONNECT
+            )
+        } else {
+            arrayOf(
+                android.Manifest.permission.BLUETOOTH,
+                android.Manifest.permission.BLUETOOTH_ADMIN,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        }
+        blePermissionRequest.launch(missingPermissions)
+    }
+
+    private fun saveDeviceToDatabase(deviceName: String) {
+        if (devices.contains(deviceName)) {
+            Toast.makeText(this, "Device already exists in Firebase", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        database.child("devices").push().setValue(deviceName)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Device saved to Firebase", Toast.LENGTH_SHORT).show()
+                devices.add(deviceName)
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Failed to remove device from database", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Failed to save device", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -223,12 +187,25 @@ class MainActivity : AppCompatActivity() {
                         devices.add(it) // Firebase에서 가져온 데이터를 리스트에 추가
                     }
                 }
+
+                // UI 업데이트
                 if (::deviceListContainer.isInitialized) {
-                    updateDeviceListInDialog() // 기기 목록 UI 업데이트
+                    deviceListContainer.removeAllViews()
+                    devices.forEach { deviceName ->
+                        val deviceTextView = TextView(this).apply {
+                            text = deviceName
+                        }
+                        deviceListContainer.addView(deviceTextView)
+                    }
                 }
             }
             .addOnFailureListener { exception ->
                 Toast.makeText(this, "Failed to load devices: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        BluetoothHandler.stopScanning()
     }
 }
