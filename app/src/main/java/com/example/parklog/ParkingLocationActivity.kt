@@ -5,87 +5,115 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.example.parklog.databinding.ActivityParkingLocationBinding
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
+import android.content.pm.PackageManager
 
 class ParkingLocationActivity : AppCompatActivity() {
 
-    private lateinit var photoUri: Uri
+    private lateinit var binding: ActivityParkingLocationBinding // ViewBinding 객체 선언
+    private var photoUri: Uri? = null // Uri를 nullable로 선언하여 null 체크 강화
+
+    // 권한 요청을 처리하는 런처 초기화
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (!isGranted) {
+                Toast.makeText(this, "Camera permission is required to take photos", Toast.LENGTH_SHORT).show()
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_parking_location)
 
-        val homeButton: ImageButton = findViewById(R.id.homeButton)
-        val saveButton: Button = findViewById(R.id.btnSave)
-        val locationEditText: EditText = findViewById(R.id.etLocationDescription)
-        val feeEditText: EditText = findViewById(R.id.etFee)
-        val savePhotoText: ImageView = findViewById(R.id.savePhotoText)
+        // ViewBinding 초기화
+        binding = ActivityParkingLocationBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-            if (success) {
-                savePhotoText.setImageURI(photoUri)
+        // 카메라 권한 요청
+        if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+        }
+
+        // TakePicture 런처 설정
+        val takePictureLauncher =
+            registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+                if (success) {
+                    photoUri?.let {
+                        binding.savePhotoText.setImageURI(it) // 이미지 뷰에 사진 설정
+                    } ?: run {
+                        Toast.makeText(this, "Failed to capture photo.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
+        // 카메라 버튼 클릭 이벤트 설정
+        binding.btnCamera.setOnClickListener {
+            // 권한 확인 후 카메라 실행
+            if (checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                photoUri = createImageFileUri()
+                photoUri?.let { uri -> // null 체크와 함께 Smart cast를 수행
+                    takePictureLauncher.launch(uri) // 사진 촬영 시작
+                } ?: run {
+                    Toast.makeText(this, "Failed to create file for photo.", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                // 권한이 없으면 요청
+                requestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
             }
         }
 
-        findViewById<ImageButton>(R.id.btnCamera).setOnClickListener {
-            photoUri = createImageFileUri()
-            takePictureLauncher.launch(photoUri)
-        }
 
-        saveButton.setOnClickListener {
-            // Firebase Storage 인스턴스 생성
+        // Save 버튼 클릭 이벤트 설정
+        binding.btnSave.setOnClickListener {
+            val currentPhotoUri = photoUri
+            if (currentPhotoUri == null) {
+                Toast.makeText(this, "No photo to save.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             val storage = FirebaseStorage.getInstance()
             val storageRef = storage.reference
-
-            // 파일 이름을 고유하게 설정 (현재 시간을 사용)
             val fileName = "images/${System.currentTimeMillis()}.jpg"
             val imageRef = storageRef.child(fileName)
 
-            // Firebase Storage에 파일 업로드
-            val uploadTask = imageRef.putFile(photoUri)
-            uploadTask.addOnSuccessListener {
-                // 업로드 성공 시 다운로드 URL을 가져와 Realtime Database에 저장
-                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                    val imageUrl = downloadUri.toString()
+            imageRef.putFile(currentPhotoUri)
+                .addOnSuccessListener {
+                    imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                        val database = FirebaseDatabase.getInstance()
+                        val dbRef = database.reference.child("parking_images").push()
 
-                    // Firebase Realtime Database 인스턴스
-                    val database = FirebaseDatabase.getInstance()
-                    val dbRef = database.reference.child("parking_images").push()
-
-                    // URL을 Firebase Database에 저장
-                    dbRef.setValue(imageUrl)
-                        .addOnSuccessListener {
-                            Toast.makeText(this, "Successfully Saved!", Toast.LENGTH_SHORT).show()
-                        }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(this, "Failed to save URL: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
-                }.addOnFailureListener { exception ->
-                    Toast.makeText(this, "Failed to get download URL: ${exception.message}", Toast.LENGTH_SHORT).show()
+                        dbRef.setValue(downloadUri.toString())
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Successfully saved!", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this, "Failed to save URL: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    }.addOnFailureListener { e ->
+                        Toast.makeText(this, "Failed to get download URL: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }.addOnFailureListener { exception ->
-                Toast.makeText(this, "Failed to save: ${exception.message}", Toast.LENGTH_SHORT).show()
-            }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Failed to upload photo: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
         }
 
-        homeButton.setOnClickListener {
+        // 홈 버튼 클릭 이벤트 설정
+        binding.homeButton.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
         }
     }
 
-    private fun createImageFileUri(): Uri {
+    // 이미지 파일 URI 생성 함수
+    private fun createImageFileUri(): Uri? {
         val contentValues = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, "captured_photo.jpg")
+            put(MediaStore.Images.Media.DISPLAY_NAME, "captured_photo_${System.currentTimeMillis()}.jpg") // 고유 파일 이름
             put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
         }
-        return contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)!!
+        return contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
     }
 }

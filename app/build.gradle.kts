@@ -35,6 +35,9 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        viewBinding = true // 여기서 enabled 대신 `viewBinding = true`를 사용
+    }
 }
 
 dependencies {

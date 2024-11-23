@@ -2,21 +2,22 @@ package com.example.parklog
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.example.parklog.databinding.ActivityParkingLocationListBinding
 import com.google.firebase.database.*
 
 class ParkingLocationList : AppCompatActivity() {
 
+    private lateinit var binding: ActivityParkingLocationListBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_parking_location_list)
 
-        val homeButton: ImageButton = findViewById(R.id.homeButton)
-        val imageView: ImageView = findViewById(R.id.imageView)
+        // ViewBinding 초기화
+        binding = ActivityParkingLocationListBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Firebase Realtime Database에서 가장 최근에 저장된 이미지 URL 가져오기
         val database = FirebaseDatabase.getInstance()
@@ -30,7 +31,7 @@ class ParkingLocationList : AppCompatActivity() {
                         // Glide를 사용해 ImageView에 이미지 로드
                         Glide.with(this@ParkingLocationList)
                             .load(imageUrl)
-                            .into(imageView)
+                            .into(binding.imageView) // ViewBinding으로 ImageView 참조
                     } else {
                         Toast.makeText(this@ParkingLocationList, "No image found", Toast.LENGTH_SHORT).show()
                     }
@@ -42,7 +43,8 @@ class ParkingLocationList : AppCompatActivity() {
             }
         })
 
-        homeButton.setOnClickListener {
+        // 홈 버튼 클릭 이벤트 설정
+        binding.homeButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
