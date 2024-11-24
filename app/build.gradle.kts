@@ -41,6 +41,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.recyclerview:recyclerview:1.3.0")
     // Firebase BoM을 통해 호환되는 버전을 자동으로 관리
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     // Firebase Storage 라이브러리 추가

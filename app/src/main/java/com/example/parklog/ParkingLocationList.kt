@@ -5,13 +5,15 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
 import com.example.parklog.databinding.ActivityParkingLocationListBinding
+import com.example.parklog.ParkingLocationAdapter // Adapter import 추가
 import com.google.firebase.database.*
 
 class ParkingLocationList : AppCompatActivity() {
 
     private lateinit var binding: ActivityParkingLocationListBinding
+    private val parkingList = mutableListOf<ParkingLocationData>()
+    private lateinit var adapter: ParkingLocationAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,34 +22,31 @@ class ParkingLocationList : AppCompatActivity() {
         binding = ActivityParkingLocationListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.recParkinglist.layoutManager = LinearLayoutManager(this)
-        binding.recParkinglist.adapter
+        // RecyclerView 설정
+        adapter = ParkingLocationAdapter(parkingList)
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.adapter = adapter
 
-        // Firebase Realtime Database에서 가장 최근에 저장된 이미지 URL 가져오기
+        // Firebase Realtime Database에서 데이터 가져오기
         val database = FirebaseDatabase.getInstance()
-        val dbRef = database.reference.child("parking_images")
+        val dbRef = database.reference.child("parking_locations")
 
-        dbRef.orderByKey().limitToLast(1).addListenerForSingleValueEvent(object : ValueEventListener {
+        dbRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                parkingList.clear()
                 for (data in snapshot.children) {
-                    val imageUrl = data.getValue(String::class.java)
-                    if (imageUrl != null) {
-                        // Glide를 사용해 ImageView에 이미지 로드
-                        Glide.with(this@ParkingLocationList)
-                            .load(imageUrl)
-                            .into(binding.imageView) // ViewBinding으로 ImageView 참조
-                    } else {
-                        Toast.makeText(this@ParkingLocationList, "No image found", Toast.LENGTH_SHORT).show()
-                    }
+                    val item = data.getValue(ParkingLocationData::class.java)
+                    item?.let { parkingList.add(it) }
                 }
+                adapter.notifyDataSetChanged()
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@ParkingLocationList, "Failed to load image: ${error.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@ParkingLocationList, "Failed to load data: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         })
 
-        // 홈 버튼 클릭 이벤트 설정
+        // 홈 버튼 클릭 이벤트
         binding.homeButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
