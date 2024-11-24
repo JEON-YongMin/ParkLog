@@ -1,0 +1,22 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- 주행 날짜 -->
+    <EditText
+        android:id="@+id/input_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="주행 날짜 (YYYY-MM-DD)"
+        android:inputType="text" />
+
+    <!-- 주행 거리 -->
+    <EditText
+        android:id="@+id/input_distance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="주행 거리 (km)"
+        android:inputType="number" />
+</LinearLayout>

@@ -1,35 +1,113 @@
 package com.example.parklog
 
-import android.content.Intent
+import android.app.AlertDialog
 import android.os.Bundle
-import android.widget.TextView
+import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.example.parklog.databinding.AddDistanceBinding
+import com.example.parklog.databinding.AddFuelBinding
+import com.example.parklog.databinding.ActivityCarLogBinding
 
 class CarLogActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityCarLogBinding
+    private val records = mutableListOf<Record>() // 기록 리스트
+    private lateinit var adapter: RecentRecordsAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_car_log)
 
-        // 더미 데이터 생성
-        val recentRecords = listOf(
-            Record("2024-11-23", "지에스칼텍스 서울점", 13.64, 249, 18.26, 1466, 20000),
-            Record("2024-11-20", "S-Oil 경기점", 22.08, 382, 17.3, 1359, 30000),
-            Record("2024-11-18", "현대오일뱅크 부산점", 11.0, 150, 13.5, 1500, 16500)
-        )
+        // View Binding 초기화
+        binding = ActivityCarLogBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // RecyclerView 초기화
-        val recyclerView: RecyclerView = findViewById(R.id.recycler_recent_records)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = RecentRecordsAdapter(recentRecords)
+        adapter = RecentRecordsAdapter(records)
+        binding.recyclerRecentRecords.layoutManager = LinearLayoutManager(this)
+        binding.recyclerRecentRecords.adapter = adapter
 
-        // "더보기" 버튼 클릭 시 RecentRecordActivity로 이동
-        val moreButton: TextView = findViewById(R.id.more_button)
-        moreButton.setOnClickListener {
-            val intent = Intent(this, RecentRecordActivity::class.java)
-            startActivity(intent)
+        // 누적 데이터 업데이트
+        updateCumulativeData()
+
+        // 버튼 클릭 이벤트
+        binding.btnAddMileage.setOnClickListener {
+            showAddDistanceDialog()
         }
+
+        binding.btnAddFuel.setOnClickListener {
+            showAddFuelDialog()
+        }
+    }
+
+    /**
+     * 누적 주행 거리와 주유 비용을 계산하여 UI를 업데이트
+     */
+    private fun updateCumulativeData() {
+        val totalMileage = records.sumOf { it.distance }
+        val totalFuelCost = records.sumOf { it.totalCost }
+
+        binding.totalMileageValue.text = "$totalMileage km"
+        binding.totalFuelCostValue.text = "₩$totalFuelCost"
+    }
+
+    /**
+     * 주행 기록 추가 Dialog
+     */
+    private fun showAddDistanceDialog() {
+        val dialogBinding = AddDistanceBinding.inflate(LayoutInflater.from(this))
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("주행 기록 추가")
+            .setView(dialogBinding.root)
+            .setPositiveButton("추가") { _, _ ->
+                val date = dialogBinding.inputDate.text.toString()
+                val distance = dialogBinding.inputDistance.text.toString().toIntOrNull() ?: 0
+
+                // 새로운 기록 추가
+                val record = Record(date, "주행 기록", 0.0, distance, 0, 0)
+                records.add(0, record) // 리스트의 가장 앞에 추가
+                adapter.notifyItemInserted(0) // RecyclerView 갱신
+                updateCumulativeData()
+            }
+            .setNegativeButton("취소", null)
+            .create()
+
+        dialog.show()
+    }
+
+    /**
+     * 주유 기록 추가 Dialog
+     */
+    private fun showAddFuelDialog() {
+        val dialogBinding = AddFuelBinding.inflate(LayoutInflater.from(this))
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("주유 기록 추가")
+            .setView(dialogBinding.root)
+            .setPositiveButton("추가") { _, _ ->
+                val date = dialogBinding.inputDate.text.toString()
+                val stationName = dialogBinding.inputStationName.text.toString()
+                val pricePerLiter = dialogBinding.inputPricePerLiter.text.toString().toIntOrNull() ?: 0
+                val totalCost = dialogBinding.inputTotalCost.text.toString().toIntOrNull() ?: 0
+                val distance = dialogBinding.inputDistance.text.toString().toIntOrNull() ?: 0
+                val fuelAmount = if (pricePerLiter > 0) totalCost.toDouble() / pricePerLiter else 0.0
+
+                // 새로운 기록 추가
+                val record = Record(
+                    date,
+                    stationName,
+                    String.format("%.1f", fuelAmount).toDouble(), // 주유량 소수점 1자리
+                    distance,
+                    pricePerLiter,
+                    totalCost
+                )
+
+                records.add(0, record) // 리스트의 가장 앞에 추가
+                adapter.notifyItemInserted(0) // RecyclerView 갱신
+                updateCumulativeData()
+            }
+            .setNegativeButton("취소", null)
+            .create()
+
+        dialog.show()
     }
 }
