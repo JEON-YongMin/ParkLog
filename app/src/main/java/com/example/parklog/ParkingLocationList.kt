@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.parklog.databinding.ActivityParkingLocationListBinding
 import com.google.firebase.database.*
@@ -18,6 +19,9 @@ class ParkingLocationList : AppCompatActivity() {
         // ViewBinding 초기화
         binding = ActivityParkingLocationListBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        binding.recParkinglist.layoutManager = LinearLayoutManager(this)
+        binding.recParkinglist.adapter
 
         // Firebase Realtime Database에서 가장 최근에 저장된 이미지 URL 가져오기
         val database = FirebaseDatabase.getInstance()
