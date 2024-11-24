@@ -80,8 +80,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="구간 500km"
-            android:textSize="12sp"
-            android:textColor="#888888"
+            android:textSize="14sp"
+            android:textColor="#000000"
+            android:textStyle="bold"
             android:gravity="end"
             android:layout_marginBottom="4dp"
             android:visibility="gone" />
@@ -94,6 +95,7 @@
             android:text="1,400 ₩/L"
             android:textSize="12sp"
             android:textColor="#888888"
+            android:textStyle="bold"
             android:gravity="end"
             android:layout_marginBottom="4dp"
             android:visibility="gone" />
@@ -104,8 +106,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="주유 35.7L"
-            android:textSize="14sp"
-            android:textColor="#000000"
+            android:textSize="12sp"
+            android:textColor="#888888"
             android:gravity="end"
             android:layout_marginBottom="4dp"
             android:visibility="gone" />
