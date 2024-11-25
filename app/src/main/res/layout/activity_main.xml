@@ -9,7 +9,6 @@
     tools:context=".MainActivity">
 
     <!-- 상단 네이비색 바 -->
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/title_bar"
         android:layout_width="match_parent"
@@ -29,7 +28,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintVertical_bias="0.5"/>
+            app:layout_constraintVertical_bias="0.5" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- 제목 텍스트 -->
@@ -57,27 +56,53 @@
         android:textColor="#BDBDBD"
         android:textSize="16sp" />
 
-    <!-- Device 버튼 -->
-    <Button
-        android:id="@+id/DeviceButton"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/carInfoLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/subTitleText"
         android:layout_marginTop="50dp"
-        android:layout_marginStart="250dp"
-        android:backgroundTint="@android:color/holo_red_dark"
-        android:text="Device"
-        android:textColor="@android:color/white"
-        android:textSize="16sp"
-        android:layout_below="@id/subTitleText" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <!-- 현재 연결된 차량 버튼 -->
+        <Button
+            android:id="@+id/connectedCarButton"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:backgroundTint="#ECEFF1"
+            android:text="sm5 : 8451"
+            android:textColor="#3F2A87"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center" />
+
+        <!-- + 버튼 -->
+        <Button
+            android:id="@+id/addCarButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="16dp"
+            android:backgroundTint="@android:color/holo_blue_dark"
+            android:text="+"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center" />
+    </LinearLayout>
 
     <!-- Save Parking Location 버튼 -->
     <Button
         android:id="@+id/parkingLocationButton"
         android:layout_width="280dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/subTitleText"
+        android:layout_below="@id/carInfoLayout"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="50dp"
         android:backgroundTint="#ECEFF1"
         android:text="Save Parking Location"
         android:textColor="#3F2A87"
@@ -96,7 +121,7 @@
         android:textColor="#3F2A87"
         android:textSize="18sp" />
 
-    <!-- CarLog 버튼 추가 -->
+    <!-- CarLog 버튼 -->
     <Button
         android:id="@+id/carLogButton"
         android:layout_width="280dp"
@@ -105,7 +130,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
         android:backgroundTint="#ECEFF1"
-        android:text=" Car Log"
+        android:text="Car Log"
         android:textColor="#3F2A87"
         android:textSize="18sp" />
 </RelativeLayout>
