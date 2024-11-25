@@ -9,7 +9,7 @@
         android:id="@+id/input_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="주행 날짜 (YYYY-MM-DD)"
+        android:hint="주행 날짜 (YYYY.MM.DD)"
         android:inputType="text" />
 
     <!-- 주행 거리 -->

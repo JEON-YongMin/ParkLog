@@ -9,7 +9,7 @@
         android:id="@+id/input_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="주유 날짜 (YYYY-MM-DD)"
+        android:hint="주유 날짜 (YYYY.MM.DD)"
         android:inputType="text" />
 
     <!-- 주유소 이름 -->
@@ -18,6 +18,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="주유소 이름" />
+
+    <!-- 주행 거리 -->
+    <EditText
+        android:id="@+id/input_distance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="주행 거리 (km)"
+        android:inputType="number" />
 
     <!-- 1L당 가격 -->
     <EditText
@@ -33,13 +41,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="총 비용 (₩)"
-        android:inputType="number" />
-
-    <!-- 주행 거리 -->
-    <EditText
-        android:id="@+id/input_distance"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="주행 거리 (km)"
         android:inputType="number" />
 </LinearLayout>
