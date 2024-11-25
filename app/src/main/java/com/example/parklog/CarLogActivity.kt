@@ -1,6 +1,7 @@
 package com.example.parklog
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,7 +16,7 @@ import com.google.firebase.database.DatabaseReference
 class CarLogActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCarLogBinding
-    private val records = mutableListOf<Record>() // 기록 리스트
+    private val records = mutableListOf<RecordData>() // 기록 리스트
     private lateinit var adapter: RecentRecordsAdapter
     private lateinit var database: DatabaseReference // Realtime Database 참조
 
@@ -40,6 +41,11 @@ class CarLogActivity : AppCompatActivity() {
         // 누적 데이터 업데이트
         updateCumulativeData()
 
+        binding.homeButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java) // MainActivity로 이동
+            startActivity(intent) // 새 액티비티 시작
+        }
+
         // 버튼 클릭 이벤트
         binding.btnAddMileage.setOnClickListener {
             showAddDistanceDialog()
@@ -50,26 +56,29 @@ class CarLogActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Firebase Realtime Database에서 기록 데이터 가져오기
-     */
+    // Firebase Realtime Database에서 기록 데이터 가져오기
     private fun fetchRecordsFromRealtimeDatabase() {
         database.get().addOnSuccessListener { snapshot ->
             records.clear()
             snapshot.children.forEach { child ->
-                val record = child.getValue(Record::class.java)
+                val record = child.getValue(RecordData::class.java)
                 record?.let { records.add(it) }
             }
+
+            // 데이터 정렬: 최신 순으로 timestamp 기준 내림차순 정렬
+            records.sortByDescending { it.timestamp }
+
+            // RecyclerView 갱신
             adapter.notifyDataSetChanged()
+
+            // 누적 데이터 업데이트
             updateCumulativeData()
         }.addOnFailureListener { e ->
             Log.w("Firebase", "Error getting documents", e)
         }
     }
-
-    /**
-     * 누적 주행 거리와 주유 비용을 계산하여 UI를 업데이트
-     */
+    
+    // 누적 주행 거리와 주유 비용을 계산하여 UI를 업데이트
     private fun updateCumulativeData() {
         val totalMileage = records.sumOf { it.distance }
         val totalFuelCost = records.sumOf { it.totalCost }
@@ -78,9 +87,7 @@ class CarLogActivity : AppCompatActivity() {
         binding.totalFuelCostValue.text = "₩$totalFuelCost"
     }
 
-    /**
-     * 주행 기록 추가 Dialog
-     */
+    // 주행 기록 추가 Dialog
     private fun showAddDistanceDialog() {
         val dialogBinding = AddDistanceBinding.inflate(LayoutInflater.from(this))
         val dialog = AlertDialog.Builder(this)
@@ -91,7 +98,7 @@ class CarLogActivity : AppCompatActivity() {
                 val distance = dialogBinding.inputDistance.text.toString().toIntOrNull() ?: 0
 
                 // 새로운 기록 추가
-                val record = Record(date, "주행 기록", 0.0, distance, 0, 0)
+                val record = RecordData(date, "주행 기록", 0.0, distance, 0, 0)
                 records.add(0, record) // 리스트의 가장 앞에 추가
                 adapter.notifyItemInserted(0) // RecyclerView 갱신
                 updateCumulativeData()
@@ -111,9 +118,7 @@ class CarLogActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    /**
-     * 주유 기록 추가 Dialog
-     */
+    // 주유 기록 추가 Dialog
     private fun showAddFuelDialog() {
         val dialogBinding = AddFuelBinding.inflate(LayoutInflater.from(this))
         val dialog = AlertDialog.Builder(this)
@@ -128,7 +133,7 @@ class CarLogActivity : AppCompatActivity() {
                 val fuelAmount = if (pricePerLiter > 0) totalCost.toDouble() / pricePerLiter else 0.0
 
                 // 새로운 기록 추가
-                val record = Record(
+                val record = RecordData(
                     date,
                     stationName,
                     String.format("%.1f", fuelAmount).toDouble(), // 주유량 소수점 1자리

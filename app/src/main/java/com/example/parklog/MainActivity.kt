@@ -5,19 +5,23 @@ import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.example.parklog.databinding.ActivityMainBinding
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.DatabaseReference
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityMainBinding // View Binding 추가
     private val cars = mutableMapOf<String, String>() // 등록된 차량 목록
     private lateinit var dialog: AlertDialog // 대화 상자
     private lateinit var database: DatabaseReference // Firebase Realtime Database 참조
-    private lateinit var connectedCarButton: Button // 현재 연결된 차량 버튼
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        // View Binding 초기화
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Firebase Realtime Database 초기화
         database = FirebaseDatabase.getInstance().reference
@@ -26,37 +30,25 @@ class MainActivity : AppCompatActivity() {
         loadCarsFromDatabase()
 
         // UI 요소 초기화
-        connectedCarButton = findViewById(R.id.connectedCarButton)
-        val addCarButton: Button = findViewById(R.id.addCarButton) // + 버튼
-
-        val parkingLocationButton: Button = findViewById(R.id.parkingLocationButton)
-        val myParkingListButton: Button = findViewById(R.id.myParkingListButton)
-        val carLogButton: Button = findViewById(R.id.carLogButton)
-
-        // 현재 연결된 차량 버튼 클릭 시 등록된 차량 목록 표시
-        connectedCarButton.setOnClickListener {
+        binding.connectedCarButton.setOnClickListener {
             showCarListDialog()
         }
 
-        // + 버튼 클릭 시 차량 등록 다이얼로그 표시
-        addCarButton.setOnClickListener {
+        binding.addCarButton.setOnClickListener {
             showAddCarDialog()
         }
 
-        // 주차 위치 저장 버튼
-        parkingLocationButton.setOnClickListener {
+        binding.parkingLocationButton.setOnClickListener {
             val intent = Intent(this, ParkingLocationActivity::class.java)
             startActivity(intent)
         }
 
-        // 내 주차 목록 버튼
-        myParkingListButton.setOnClickListener {
+        binding.myParkingListButton.setOnClickListener {
             val intent = Intent(this, ParkingLocationList::class.java)
             startActivity(intent)
         }
 
-        // 차계부 버튼
-        carLogButton.setOnClickListener {
+        binding.carLogButton.setOnClickListener {
             val intent = Intent(this, CarLogActivity::class.java)
             startActivity(intent)
         }
@@ -188,7 +180,6 @@ class MainActivity : AppCompatActivity() {
                     deleteCarFromDatabase(key)
                     cars.remove(key)
                     listContainer.removeView(carLayout)
-                    Toast.makeText(this@MainActivity, "차량이 삭제되었습니다.", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -222,7 +213,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateConnectedCarButton(car: String) {
-        connectedCarButton.text = car
+        binding.connectedCarButton.text = car
     }
 
     private fun loadCarsFromDatabase() {

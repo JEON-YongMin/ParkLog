@@ -3,69 +3,66 @@ package com.example.parklog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.parklog.databinding.AdapterRecentRecordsBinding
 
-class RecentRecordsAdapter(private val records: MutableList<Record>) :
+class RecentRecordsAdapter(private val recordList: MutableList<RecordData>) :
     RecyclerView.Adapter<RecentRecordsAdapter.RecordViewHolder>() {
 
-    class RecordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val stationIcon: ImageView = itemView.findViewById(R.id.station_icon)
-        val dateText: TextView = itemView.findViewById(R.id.date_text)
-        val stationNameText: TextView = itemView.findViewById(R.id.station_name_text)
-        val fuelText: TextView = itemView.findViewById(R.id.fuel_text)
-        val distanceTextCenter: TextView = itemView.findViewById(R.id.distance_text_center)
-        val distanceTextEnd: TextView = itemView.findViewById(R.id.distance_text_end)
-        val pricePerLiterText: TextView = itemView.findViewById(R.id.price_per_liter_text)
-        val totalCostText: TextView = itemView.findViewById(R.id.total_cost_text)
-    }
+    // ViewHolder 클래스: View Binding을 사용하여 레이아웃의 뷰에 접근
+    class RecordViewHolder(private val binding: AdapterRecentRecordsBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecordViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.adapter_recent_records, parent, false)
-        return RecordViewHolder(view)
-    }
+        fun bind(recordData: RecordData) {
+            binding.dateText.text = recordData.date
 
-    override fun onBindViewHolder(holder: RecordViewHolder, position: Int) {
-        val record = records[position]
+            if (recordData.stationName == "주행 기록") {
+                // 주행 기록: 날짜 왼쪽, 거리 오른쪽
+                binding.stationIcon.visibility = View.GONE
+                binding.stationNameText.visibility = View.GONE
+                binding.fuelText.visibility = View.GONE
+                binding.pricePerLiterText.visibility = View.GONE
+                binding.totalCostText.visibility = View.GONE
 
-        holder.dateText.text = record.date
+                binding.distanceTextCenter.visibility = View.GONE
+                binding.distanceTextEnd.visibility = View.VISIBLE
+                binding.distanceTextEnd.text = "구간 ${recordData.distance}km"
+            } else {
+                // 주유 기록: 기존 레이아웃 유지
+                binding.stationIcon.visibility = View.VISIBLE
+                binding.stationNameText.visibility = View.VISIBLE
+                binding.fuelText.visibility = View.VISIBLE
+                binding.pricePerLiterText.visibility = View.VISIBLE
+                binding.totalCostText.visibility = View.VISIBLE
 
-        if (record.stationName == "주행 기록") {
-            // 주행 기록: 날짜 왼쪽, 거리 오른쪽
-            holder.stationIcon.visibility = View.GONE
-            holder.stationNameText.visibility = View.GONE
-            holder.fuelText.visibility = View.GONE
-            holder.pricePerLiterText.visibility = View.GONE
-            holder.totalCostText.visibility = View.GONE
+                binding.stationNameText.text = recordData.stationName
+                binding.distanceTextCenter.visibility = View.VISIBLE
+                binding.distanceTextCenter.text = "구간 ${recordData.distance}km"
+                binding.distanceTextEnd.visibility = View.GONE
 
-            holder.distanceTextCenter.visibility = View.GONE
-            holder.distanceTextEnd.visibility = View.VISIBLE
-            holder.distanceTextEnd.text = "구간 ${record.distance}km"
-        } else {
-            // 주유 기록: 기존 레이아웃 유지
-            holder.stationIcon.visibility = View.VISIBLE
-            holder.stationNameText.visibility = View.VISIBLE
-            holder.fuelText.visibility = View.VISIBLE
-            holder.pricePerLiterText.visibility = View.VISIBLE
-            holder.totalCostText.visibility = View.VISIBLE
-
-            holder.stationNameText.text = record.stationName
-            holder.distanceTextCenter.visibility = View.VISIBLE
-            holder.distanceTextCenter.text = "구간 ${record.distance}km"
-            holder.distanceTextEnd.visibility = View.GONE
-
-            holder.fuelText.text = "주유 ${record.fuelAmount}L"
-            holder.pricePerLiterText.text = "${record.pricePerLiter} ₩/L"
-            holder.totalCostText.text = "₩${record.totalCost}"
+                binding.fuelText.text = "주유 ${recordData.fuelAmount}L"
+                binding.pricePerLiterText.text = "${recordData.pricePerLiter} ₩/L"
+                binding.totalCostText.text = "₩${recordData.totalCost}"
+            }
         }
     }
 
-    override fun getItemCount(): Int = records.size
-
-    fun addRecord(record: Record) {
-        records.add(0, record) // 리스트의 가장 앞에 기록 추가
-        notifyItemInserted(0) // 첫 번째 위치에 아이템 추가 알림
+    // ViewHolder 생성
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecordViewHolder {
+        val binding = AdapterRecentRecordsBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return RecordViewHolder(binding)
     }
+
+    // ViewHolder 데이터 바인딩
+    override fun onBindViewHolder(holder: RecordViewHolder, position: Int) {
+        val record = recordList[position]
+        holder.bind(record)
+    }
+
+    // RecyclerView 아이템 개수 반환
+    override fun getItemCount(): Int = recordList.size
 }
