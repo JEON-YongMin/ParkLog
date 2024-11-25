@@ -83,7 +83,7 @@
                 android:id="@+id/car_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="차량 이름: Sonata"
+                android:text="차량 이름 : "
                 android:textSize="14sp"
                 android:textColor="#000000"
                 android:paddingBottom="4dp" />
@@ -92,7 +92,7 @@
                 android:id="@+id/car_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="차량 번호: 123가 4567"
+                android:text="차량 번호 : "
                 android:textSize="14sp"
                 android:textColor="#000000" />
 

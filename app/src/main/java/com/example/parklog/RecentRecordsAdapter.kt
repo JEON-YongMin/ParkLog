@@ -56,7 +56,7 @@ class RecentRecordsAdapter(private val records: MutableList<Record>) :
             holder.distanceTextCenter.text = "구간 ${record.distance}km"
             holder.distanceTextEnd.visibility = View.GONE
 
-            holder.fuelText.text = "주유 ${record.fuel}L"
+            holder.fuelText.text = "주유 ${record.fuelAmount}L"
             holder.pricePerLiterText.text = "${record.pricePerLiter} ₩/L"
             holder.totalCostText.text = "₩${record.totalCost}"
         }

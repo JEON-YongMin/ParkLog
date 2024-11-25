@@ -2,18 +2,22 @@ package com.example.parklog
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parklog.databinding.AddDistanceBinding
 import com.example.parklog.databinding.AddFuelBinding
 import com.example.parklog.databinding.ActivityCarLogBinding
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.DatabaseReference
 
 class CarLogActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCarLogBinding
     private val records = mutableListOf<Record>() // 기록 리스트
     private lateinit var adapter: RecentRecordsAdapter
+    private lateinit var database: DatabaseReference // Realtime Database 참조
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,10 +26,16 @@ class CarLogActivity : AppCompatActivity() {
         binding = ActivityCarLogBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Firebase Realtime Database 초기화
+        database = FirebaseDatabase.getInstance().reference.child("CarRecords")
+
         // RecyclerView 초기화
         adapter = RecentRecordsAdapter(records)
         binding.recyclerRecentRecords.layoutManager = LinearLayoutManager(this)
         binding.recyclerRecentRecords.adapter = adapter
+
+        // Firebase에서 초기 데이터 가져오기
+        fetchRecordsFromRealtimeDatabase()
 
         // 누적 데이터 업데이트
         updateCumulativeData()
@@ -37,6 +47,23 @@ class CarLogActivity : AppCompatActivity() {
 
         binding.btnAddFuel.setOnClickListener {
             showAddFuelDialog()
+        }
+    }
+
+    /**
+     * Firebase Realtime Database에서 기록 데이터 가져오기
+     */
+    private fun fetchRecordsFromRealtimeDatabase() {
+        database.get().addOnSuccessListener { snapshot ->
+            records.clear()
+            snapshot.children.forEach { child ->
+                val record = child.getValue(Record::class.java)
+                record?.let { records.add(it) }
+            }
+            adapter.notifyDataSetChanged()
+            updateCumulativeData()
+        }.addOnFailureListener { e ->
+            Log.w("Firebase", "Error getting documents", e)
         }
     }
 
@@ -68,6 +95,15 @@ class CarLogActivity : AppCompatActivity() {
                 records.add(0, record) // 리스트의 가장 앞에 추가
                 adapter.notifyItemInserted(0) // RecyclerView 갱신
                 updateCumulativeData()
+
+                // Firebase에 저장
+                database.push().setValue(record)
+                    .addOnSuccessListener {
+                        Log.d("Firebase", "주행 기록 저장 성공")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("Firebase", "주행 기록 저장 실패", e)
+                    }
             }
             .setNegativeButton("취소", null)
             .create()
@@ -104,6 +140,15 @@ class CarLogActivity : AppCompatActivity() {
                 records.add(0, record) // 리스트의 가장 앞에 추가
                 adapter.notifyItemInserted(0) // RecyclerView 갱신
                 updateCumulativeData()
+
+                // Firebase에 저장
+                database.push().setValue(record)
+                    .addOnSuccessListener {
+                        Log.d("Firebase", "주유 기록 저장 성공")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("Firebase", "주유 기록 저장 실패", e)
+                    }
             }
             .setNegativeButton("취소", null)
             .create()
