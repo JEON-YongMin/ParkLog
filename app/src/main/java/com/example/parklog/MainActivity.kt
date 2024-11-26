@@ -11,10 +11,10 @@ import com.google.firebase.database.DatabaseReference
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding // View Binding 추가
-    private val cars = mutableMapOf<String, String>() // 등록된 차량 목록
-    private lateinit var dialog: AlertDialog // 대화 상자
-    private lateinit var database: DatabaseReference // Firebase Realtime Database 참조
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var dialog: AlertDialog
+    private lateinit var database: DatabaseReference
+    private val cars = mutableMapOf<String, String>() // 차량 등록
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,16 +26,15 @@ class MainActivity : AppCompatActivity() {
         // Firebase Realtime Database 초기화
         database = FirebaseDatabase.getInstance().reference
 
-        // Firebase에서 기존 데이터를 불러오기
+        // Firebase에서 기존 데이터 불러오기
         loadCarsFromDatabase()
-
-        // UI 요소 초기화
-        binding.connectedCarButton.setOnClickListener {
-            showCarListDialog()
-        }
 
         binding.addCarButton.setOnClickListener {
             showAddCarDialog()
+        }
+
+        binding.connectedCarButton.setOnClickListener {
+            showCarListDialog()
         }
 
         binding.parkingLocationButton.setOnClickListener {
@@ -77,13 +76,6 @@ class MainActivity : AppCompatActivity() {
             setPadding(0, 16, 0, 0)
         }
 
-        val cancelButton = Button(this).apply {
-            text = "취소"
-            setOnClickListener {
-                dialog.dismiss()
-            }
-        }
-
         val addButton = Button(this).apply {
             text = "등록"
             setOnClickListener {
@@ -95,10 +87,10 @@ class MainActivity : AppCompatActivity() {
                     val newCarKey = database.child("cars").push().key
 
                     if (newCarKey != null) {
-                        database.child("cars").child(newCarKey).setValue(newCar)
+                        database.child("cars").child(newCarKey).setValue(newCar) // newCarKey 하위 노드 생성
                             .addOnSuccessListener {
-                                cars[newCarKey] = newCar // 로컬 목록 업데이트
-                                updateConnectedCarButton(newCar) // UI 업데이트
+                                cars[newCarKey] = newCar
+                                updateConnectedCarButton(newCar)
                                 Toast.makeText(this@MainActivity, "차량이 등록되었습니다.", Toast.LENGTH_SHORT).show()
                                 dialog.dismiss()
                             }
@@ -114,9 +106,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        buttonLayout.addView(cancelButton)
-        buttonLayout.addView(addButton)
+        val cancelButton = Button(this).apply {
+            text = "취소"
+            setOnClickListener {
+                dialog.dismiss()
+            }
+        }
+
         dialogLayout.addView(buttonLayout)
+        buttonLayout.addView(addButton)
+        buttonLayout.addView(cancelButton)
 
         dialog = AlertDialog.Builder(this)
             .setTitle("차량 등록")
@@ -162,7 +161,7 @@ class MainActivity : AppCompatActivity() {
                 layoutParams = LinearLayout.LayoutParams(
                     0,
                     LinearLayout.LayoutParams.WRAP_CONTENT,
-                    1f // Equal weight to fill remaining space
+                    1f
                 )
                 setOnClickListener {
                     updateConnectedCarButton(car)
@@ -216,13 +215,17 @@ class MainActivity : AppCompatActivity() {
         binding.connectedCarButton.text = car
     }
 
+    // Firebase Realtime Database에서 데이터 기록 가져오기
     private fun loadCarsFromDatabase() {
         database.child("cars").get()
             .addOnSuccessListener { snapshot ->
                 cars.clear()
                 for (child in snapshot.children) {
-                    val car = child.getValue(String::class.java)
-                    car?.let { cars[child.key!!] = it }
+                    val car = child.getValue(String::class.java) // 하위 노드의 값을 String 타입으로 변환
+                    val key = child.key
+                    if (car != null && key != null) {
+                        cars[key] = car
+                    }
                 }
                 if (cars.isNotEmpty()) {
                     updateConnectedCarButton(cars.values.last())
@@ -233,6 +236,7 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+    // Firebase Realtime Database에서 데이터 기록 삭제
     private fun deleteCarFromDatabase(carKey: String) {
         database.child("cars").child(carKey).removeValue()
             .addOnSuccessListener {

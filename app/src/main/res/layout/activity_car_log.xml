@@ -128,7 +128,6 @@
                         android:id="@+id/total_mileage_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="67,875 km"
                         android:textSize="16sp"
                         android:textColor="#000000" />
                 </LinearLayout>
@@ -160,7 +159,6 @@
                         android:id="@+id/total_fuel_cost_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="₩1,500,000"
                         android:textSize="16sp"
                         android:textColor="#000000" />
                 </LinearLayout>
@@ -235,16 +233,6 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="#000000" />
-
-                <TextView
-                    android:id="@+id/more_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="더보기"
-                    android:textSize="14sp"
-                    android:textColor="#3F2A87"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true" />
             </RelativeLayout>
 
             <!-- RecyclerView for 최근 기록 -->

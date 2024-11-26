@@ -17,7 +17,7 @@ class CarLogActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCarLogBinding
     private lateinit var adapter: RecentRecordsAdapter
-    private lateinit var database: DatabaseReference // Firebase Realtime Database 참조
+    private lateinit var database: DatabaseReference
     private val records = mutableListOf<RecordData>() // 등록된 차량 목록
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +35,7 @@ class CarLogActivity : AppCompatActivity() {
         // Firebase Realtime Database 초기화
         database = FirebaseDatabase.getInstance().reference.child("CarRecords")
 
-        // Firebase에서 초기 데이터 가져오기
+        // Firebase에서 기존 데이터 불러오기
         fetchRecordsFromRealtimeDatabase()
 
         // 누적 데이터 업데이트
@@ -147,32 +147,24 @@ class CarLogActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    // Firebase Realtime Database에서 기록 데이터 가져오기
+    // Firebase Realtime Database에서 데이터 기록 가져오기
     private fun fetchRecordsFromRealtimeDatabase() {
         database.get()
-
-            // 성공적으로 데이터 가져왔을 때
             .addOnSuccessListener { snapshot ->
                 records.clear()
-                snapshot.children.forEach { child ->
-                    child.getValue(RecordData::class.java)?.let { records.add(it) } // 변환 후 리스트에 추가
+                for (child in snapshot.children) {
+                    val record = child.getValue(RecordData::class.java) // 하위 노드의 값을 RecordData 타입으로 변환
+                    if (record != null) {
+                        records.add(record)
+                    }
                 }
-
-                // 데이터 정렬: 최신 순으로 timestamp 기준 내림차순 정렬
-                records.sortByDescending { it.timestamp }
-
-                // RecyclerView 갱신
-                adapter.notifyDataSetChanged()
-
-                // 누적 데이터 업데이트
+                records.sortByDescending { it.timestamp } // 데이터 정렬: 최신 순으로 timestamp 기준 내림차순 정렬
+                adapter.notifyDataSetChanged() // RecyclerView 갱신
                 updateCumulativeData()
             }
-
-            // 성공적으로 데이터 가져오지 못했을 때
             .addOnFailureListener { e ->
                 Log.w("Firebase", "데이터 가져오기 실패", e)
             }
     }
-
 }
 

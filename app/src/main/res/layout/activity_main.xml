@@ -74,7 +74,7 @@
             android:layout_height="50dp"
             android:layout_weight="1"
             android:backgroundTint="#ECEFF1"
-            android:text="sm5 : 8451"
+            android:text=""
             android:textColor="#3F2A87"
             android:textSize="16sp"
             android:fontFamily="sans-serif-medium"
@@ -89,7 +89,7 @@
             android:backgroundTint="@android:color/holo_blue_dark"
             android:text="+"
             android:textColor="@android:color/white"
-            android:textSize="24sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:fontFamily="sans-serif-medium"
             android:gravity="center" />
