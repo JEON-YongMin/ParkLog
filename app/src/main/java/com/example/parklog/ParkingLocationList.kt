@@ -31,14 +31,15 @@ class ParkingLocationList : AppCompatActivity() {
         val database = FirebaseDatabase.getInstance()
         val dbRef = database.reference.child("parking_locations")
 
+        // Firebase 데이터 변화를 실시간으로 감지
         dbRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                parkingList.clear()
-                for (data in snapshot.children) {
-                    val item = data.getValue(ParkingLocationData::class.java)
-                    item?.let { parkingList.add(it) }
+                parkingList.clear() // 기존 데이터를 초기화
+                for (data in snapshot.children) { // Firebase에서 데이터를 순회
+                    val item = data.getValue(ParkingLocationData::class.java) // 데이터 객체로 변환
+                    item?.let { parkingList.add(it) } // 리스트에 추가
                 }
-                adapter.notifyDataSetChanged()
+                adapter.notifyDataSetChanged() // RecyclerView 갱신
             }
 
             override fun onCancelled(error: DatabaseError) {

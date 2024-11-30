@@ -54,39 +54,46 @@ class ParkingLocationActivity : AppCompatActivity() {
             if (photoUri == null || location.isEmpty() || fee.isEmpty()) {
                 Toast.makeText(this, "모든 정보를 입력해주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
-            }
+            }  // 모두 저장하지 않아도 save할 수 있도록 코드 수정!
 
             val storage = FirebaseStorage.getInstance()
             val storageRef = storage.reference.child("images/${UUID.randomUUID()}.jpg")
+            // images 폴더 아래에 고유이름으로 jpg 저장 (파일이름 중복방지)
 
             // 사진 Firebase Storage에 업로드
-            storageRef.putFile(photoUri!!)
-                .addOnSuccessListener {
-                    storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                        val database = FirebaseDatabase.getInstance()
-                        val dbRef = database.reference.child("parking_locations").push()
+            photoUri?.let { uri ->
+                storageRef.putFile(uri)
+                    .addOnSuccessListener { // 파일 업로드가 성공했을 때 아래 작업 실행
+                        storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                            val database = FirebaseDatabase.getInstance()
+                            val dbRef = database.reference.child("parking_locations").push()
 
-                        // ParkingLocationData 객체 생성
-                        val parkingData = ParkingLocationData(
-                            photoUri = downloadUri.toString(),
-                            location = location,
-                            fee = fee
-                        )
+                            // ParkingLocationData 객체 생성
+                            val parkingData = ParkingLocationData(
+                                photoUri = downloadUri.toString(),
+                                location = location,
+                                fee = fee
+                            )
 
-                        // Firebase Database에 데이터 저장
-                        dbRef.setValue(parkingData)
-                            .addOnSuccessListener {
-                                Toast.makeText(this, "저장 성공!", Toast.LENGTH_SHORT).show()
-                                finish()
-                            }
-                            .addOnFailureListener { e ->
-                                Toast.makeText(this, "저장 실패: ${e.message}", Toast.LENGTH_SHORT).show()
-                            }
+                            // Firebase Database에 데이터 저장
+                            dbRef.setValue(parkingData)
+                                .addOnSuccessListener {
+                                    Toast.makeText(this, "저장 성공!", Toast.LENGTH_SHORT).show()
+                                    finish()
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(this, "저장 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        }
                     }
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(this, "사진 업로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "사진 업로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            } ?: run {
+                // photoUri가 null인 경우 처리
+                Toast.makeText(this, "사진이 선택되지 않았습니다.", Toast.LENGTH_SHORT).show()
+            }
+
         }
     }
 
