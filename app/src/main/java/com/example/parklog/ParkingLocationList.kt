@@ -6,7 +6,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parklog.databinding.ActivityParkingLocationListBinding
-import com.example.parklog.ParkingLocationAdapter // Adapter import 추가
 import com.google.firebase.database.*
 
 class ParkingLocationList : AppCompatActivity() {
