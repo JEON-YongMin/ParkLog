@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.parklog.databinding.ActivityParkingLocationBinding
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
+import java.text.SimpleDateFormat
 import java.util.*
 
 class ParkingLocationActivity : AppCompatActivity() {
@@ -24,7 +25,6 @@ class ParkingLocationActivity : AppCompatActivity() {
         binding = ActivityParkingLocationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // TakePicture 런처 설정
         val takePictureLauncher =
             registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
                 if (success) {
@@ -34,48 +34,43 @@ class ParkingLocationActivity : AppCompatActivity() {
                 }
             }
 
-        // 홈 버튼 클릭 이벤트 추가
         binding.homeButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java) // MainActivity로 이동
-            startActivity(intent) // 새 액티비티 시작
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         }
 
-        // 카메라 버튼 클릭 이벤트
         binding.btnCamera.setOnClickListener {
             photoUri = createImageFileUri()
             photoUri?.let { takePictureLauncher.launch(it) }
         }
 
-        // Save 버튼 클릭 이벤트
         binding.btnSave.setOnClickListener {
             val location = binding.etLocationDescription.text.toString()
             val fee = binding.etFee.text.toString()
 
-            if (photoUri == null || location.isEmpty() || fee.isEmpty()) {
-                Toast.makeText(this, "모든 정보를 입력해주세요.", Toast.LENGTH_SHORT).show()
+            if (photoUri == null) {
+                Toast.makeText(this, "사진을 입력해주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
-            }  // 모두 저장하지 않아도 save할 수 있도록 코드 수정!
+            }
 
             val storage = FirebaseStorage.getInstance()
             val storageRef = storage.reference.child("images/${UUID.randomUUID()}.jpg")
-            // images 폴더 아래에 고유이름으로 jpg 저장 (파일이름 중복방지)
 
-            // 사진 Firebase Storage에 업로드
             photoUri?.let { uri ->
                 storageRef.putFile(uri)
-                    .addOnSuccessListener { // 파일 업로드가 성공했을 때 아래 작업 실행
+                    .addOnSuccessListener {
                         storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
                             val database = FirebaseDatabase.getInstance()
                             val dbRef = database.reference.child("parking_locations").push()
 
-                            // ParkingLocationData 객체 생성
+                            val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
                             val parkingData = ParkingLocationData(
                                 photoUri = downloadUri.toString(),
-                                location = location,
-                                fee = fee
+                                location = if (location.isEmpty()) "" else location,
+                                fee = if (fee.isEmpty()) "" else fee,
+                                timestamp = timestamp // 저장시간 추가
                             )
 
-                            // Firebase Database에 데이터 저장
                             dbRef.setValue(parkingData)
                                 .addOnSuccessListener {
                                     Toast.makeText(this, "저장 성공!", Toast.LENGTH_SHORT).show()
@@ -89,11 +84,7 @@ class ParkingLocationActivity : AppCompatActivity() {
                     .addOnFailureListener { e ->
                         Toast.makeText(this, "사진 업로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
-            } ?: run {
-                // photoUri가 null인 경우 처리
-                Toast.makeText(this, "사진이 선택되지 않았습니다.", Toast.LENGTH_SHORT).show()
             }
-
         }
     }
 

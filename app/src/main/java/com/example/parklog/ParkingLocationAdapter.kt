@@ -8,7 +8,7 @@ import com.example.parklog.databinding.ListParkingBinding
 
 class ParkingLocationAdapter(
     private val parkingList: MutableList<ParkingLocationData>,
-    private val onDeleteClicked: (Int) -> Unit // 삭제 버튼 클릭 콜백
+    private val onDeleteClicked: (Int) -> Unit
 ) : RecyclerView.Adapter<ParkingLocationAdapter.ViewHolder>() {
 
     inner class ViewHolder(val binding: ListParkingBinding) :
@@ -16,17 +16,16 @@ class ParkingLocationAdapter(
         fun bind(data: ParkingLocationData, position: Int) {
             binding.txtLocation.text = data.location
             binding.txtFee.text = data.fee
+            binding.txtTimestamp.text = data.timestamp // 저장시간 표시
 
             Glide.with(binding.root.context)
                 .load(data.photoUri)
                 .into(binding.imageView3)
 
-            // 삭제 버튼 클릭 이벤트
             binding.btnDelete.setOnClickListener {
                 onDeleteClicked(position)
             }
 
-            // 수정 버튼 클릭 이벤트 (구현은 나중에 추가)
             binding.btnEdit.setOnClickListener {
                 // TODO: 수정 기능 추가
             }
