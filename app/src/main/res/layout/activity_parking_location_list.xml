@@ -72,14 +72,28 @@
         android:textColor="#3F2A87"
         android:padding="24dp"/>
 
+    <!-- 정렬 버튼 -->
+
     <!-- RecyclerView 추가 -->
+    <ImageButton
+        android:id="@+id/sortButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_below="@id/btnMyParkingList"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="4dp"
+        android:layout_marginRight="23dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="Sort Button"
+        android:src="@drawable/ic_sort" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/btnMyParkingList"
-        android:layout_marginTop="20dp"
-        android:padding="10dp"
+        android:layout_below="@id/sortButton"
+        android:layout_marginTop="-4dp"
         android:clipToPadding="false"
+        android:padding="10dp"
         tools:listitem="@layout/list_parking" />
 </RelativeLayout>
