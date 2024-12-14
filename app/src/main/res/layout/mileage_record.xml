@@ -1,0 +1,56 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:background="@android:color/white"
+    android:elevation="2dp"
+    android:layout_margin="8dp">
+
+    <!-- 왼쪽 섹션: 날짜 -->
+    <TextView
+        android:id="@+id/date_text"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:text="2024-08-25"
+        android:textSize="14sp"
+        android:textColor="#888888"
+        android:layout_marginEnd="16dp" />
+
+    <!-- 가운데 섹션: 출발 위치/도착 위치 -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/start_location_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="출발: 서울역"
+            android:textSize="14sp"
+            android:textColor="#000000" />
+
+        <TextView
+            android:id="@+id/end_location_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="도착: 강남역"
+            android:textSize="14sp"
+            android:textColor="#000000" />
+    </LinearLayout>
+
+    <!-- 오른쪽 섹션: 주행 거리 -->
+    <TextView
+        android:id="@+id/mileage_text"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:text="주행 거리: 20 km"
+        android:textSize="14sp"
+        android:textColor="#3F2A87" />
+</LinearLayout>

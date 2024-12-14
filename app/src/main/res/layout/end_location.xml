@@ -1,0 +1,15 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- 도착 위치 -->
+    <EditText
+        android:id="@+id/inputEndLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="도착 위치를 입력하세요"
+        android:padding="8dp"
+        android:backgroundTint="@color/black" />
+</LinearLayout>

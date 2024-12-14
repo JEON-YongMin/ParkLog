@@ -6,17 +6,21 @@
 
     <!-- 주행 날짜 -->
     <EditText
-        android:id="@+id/input_date"
+        android:id="@+id/inputDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="주행 날짜 (YYYY.MM.DD)"
-        android:inputType="text" />
+        android:inputType="date"
+        android:padding="8dp"
+        android:backgroundTint="@color/black" />
 
-    <!-- 주행 거리 -->
+    <!-- 출발 위치 -->
     <EditText
-        android:id="@+id/input_distance"
+        android:id="@+id/inputStartLocation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="주행 거리 (km)"
-        android:inputType="number" />
+        android:hint="출발 위치를 입력하세요"
+        android:padding="8dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/black" />
 </LinearLayout>

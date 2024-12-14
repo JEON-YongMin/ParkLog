@@ -1,170 +1,195 @@
 package com.example.parklog
 
+import android.Manifest
 import android.app.AlertDialog
-import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.parklog.databinding.AddMileageBinding
-import com.example.parklog.databinding.AddFuelBinding
+import androidx.core.app.ActivityCompat
 import com.example.parklog.databinding.ActivityCarLogBinding
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.DatabaseReference
+import com.example.parklog.databinding.StartLocationBinding
+import com.example.parklog.databinding.EndLocationBinding
+import com.example.parklog.databinding.AddFuelBinding
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 
-class CarLogActivity : AppCompatActivity() {
+class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var binding: ActivityCarLogBinding
-    private lateinit var adapter: RecentRecordsAdapter
-    private lateinit var database: DatabaseReference
-    private val records = mutableListOf<RecordData>() // 등록된 차량 목록
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var googleMap: GoogleMap
+
+    private var startLocation: LatLng? = null
+    private var endLocation: LatLng? = null
+    private var startLocationName: String? = null
+    private var endLocationName: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // View Binding 초기화
         binding = ActivityCarLogBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // RecyclerView 초기화
-        adapter = RecentRecordsAdapter(records)
-        binding.recyclerRecentRecords.layoutManager = LinearLayoutManager(this)
-        binding.recyclerRecentRecords.adapter = adapter
+        // FusedLocationProviderClient 초기화
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        // Firebase Realtime Database 초기화
-        database = FirebaseDatabase.getInstance().reference.child("CarRecords")
+        // Google Maps 초기화
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map_fragment) as SupportMapFragment
+        mapFragment.getMapAsync(this)
 
-        // Firebase에서 기존 데이터 불러오기
-        fetchRecordsFromRealtimeDatabase()
-
-        // 누적 데이터 업데이트
-        updateCumulativeData()
-
-        binding.homeButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-        }
-
+        // 주행 기록 버튼 클릭 처리
         binding.btnAddMileage.setOnClickListener {
-            showAddDistanceDialog()
+            handleMileageButtonClick()
         }
 
+        // 주유 기록 버튼 클릭 처리
         binding.btnAddFuel.setOnClickListener {
             showAddFuelDialog()
         }
     }
-    
-    // 누적 주행 거리와 누적 주유 비용을 계산하여 UI 업데이트
-    private fun updateCumulativeData() {
-        var totalMileage = 0
-        var totalFuelCost = 0
 
-        for (record in records) {
-            totalMileage += record.distance
-            totalFuelCost += record.totalCost
-        }
+    override fun onMapReady(map: GoogleMap) {
+        googleMap = map
+        googleMap.uiSettings.isZoomControlsEnabled = true
 
-        binding.totalMileageValue.text = "$totalMileage km"
-        binding.totalFuelCostValue.text = "₩$totalFuelCost"
+        // 기본 위치로 서울 설정
+        val defaultLocation = LatLng(37.5665, 126.9780) // 서울
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f))
     }
 
-    // 주행 기록 추가 Dialog
-    private fun showAddDistanceDialog() {
-        val dialogBinding = AddMileageBinding.inflate(LayoutInflater.from(this))
+    // 주행 기록 처리
+    private fun handleMileageButtonClick() {
+        if (ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // 위치 권한 요청
+            ActivityCompat.requestPermissions(
+                this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1
+            )
+            return
+        }
 
-        // AlertDialog 생성
+        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            if (location != null) {
+                val currentLatLng = LatLng(location.latitude, location.longitude)
+
+                if (startLocation == null) {
+                    // 출발 위치 설정 및 지도에 표시
+                    startLocation = currentLatLng
+                    googleMap.addMarker(
+                        MarkerOptions().position(currentLatLng).title("출발 위치")
+                    )
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
+                    showStartLocationDialog()
+                } else if (endLocation == null) {
+                    // 도착 위치 설정 및 지도에 표시
+                    endLocation = currentLatLng
+                    googleMap.addMarker(
+                        MarkerOptions().position(currentLatLng).title("도착 위치")
+                    )
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
+                    showEndLocationDialog()
+                }
+            } else {
+                Toast.makeText(this, "현재 위치를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun showStartLocationDialog() {
+        val dialogBinding = StartLocationBinding.inflate(layoutInflater)
         val dialog = AlertDialog.Builder(this)
-            .setTitle("주행 기록 추가")
+            .setTitle("출발 위치 입력")
             .setView(dialogBinding.root)
-            .setPositiveButton("추가") { _, _ ->
-                val date = dialogBinding.inputDate.text.toString()
-                val distance = dialogBinding.inputDistance.text.toString().toIntOrNull() ?: 0
-
-                // 새로운 기록 추가
-                val record = RecordData(date, "주행 기록", distance,0,0.0, 0)
-                records.add(0, record) // 리스트의 가장 앞에 추가
-                adapter.notifyItemInserted(0) // RecyclerView 갱신
-                updateCumulativeData()
-
-                // Firebase에 저장
-                database.push().setValue(record)
-                    .addOnSuccessListener {
-                        Log.d("Firebase", "주행 기록 저장 성공")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.w("Firebase", "주행 기록 저장 실패", e)
-                    }
+            .setPositiveButton("확인") { _, _ ->
+                val startLocationInput = dialogBinding.inputStartLocation.text.toString()
+                if (startLocationInput.isNotBlank()) {
+                    startLocationName = startLocationInput
+                    Toast.makeText(this, "출발 위치: $startLocationName", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "출발 위치를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                }
             }
             .setNegativeButton("취소", null)
             .create()
-
         dialog.show()
     }
 
-    // 주유 기록 추가 Dialog
-    private fun showAddFuelDialog() {
-        val dialogBinding = AddFuelBinding.inflate(LayoutInflater.from(this))
+    private fun showEndLocationDialog() {
+        val dialogBinding = EndLocationBinding.inflate(layoutInflater)
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("도착 위치 입력")
+            .setView(dialogBinding.root)
+            .setPositiveButton("확인") { _, _ ->
+                val endLocationInput = dialogBinding.inputEndLocation.text.toString()
+                if (endLocationInput.isNotBlank()) {
+                    endLocationName = endLocationInput
+                    Toast.makeText(this, "도착 위치: $endLocationName", Toast.LENGTH_SHORT).show()
 
-        // AlertDialog 생성
+                    // 주행 거리 계산
+                    calculateAndShowDistance()
+                } else {
+                    Toast.makeText(this, "도착 위치를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("취소", null)
+            .create()
+        dialog.show()
+    }
+
+    private fun calculateAndShowDistance() {
+        if (startLocation != null && endLocation != null) {
+            val results = FloatArray(1)
+            Location.distanceBetween(
+                startLocation!!.latitude, startLocation!!.longitude,
+                endLocation!!.latitude, endLocation!!.longitude,
+                results
+            )
+            val distanceInKm = results[0] / 1000
+            Toast.makeText(this, "주행 거리: %.2f km".format(distanceInKm), Toast.LENGTH_LONG).show()
+
+            // 주행 기록 초기화
+            startLocation = null
+            endLocation = null
+            startLocationName = null
+            endLocationName = null
+        }
+    }
+
+    // 주유 기록 처리
+    private fun showAddFuelDialog() {
+        val dialogBinding = AddFuelBinding.inflate(layoutInflater)
         val dialog = AlertDialog.Builder(this)
             .setTitle("주유 기록 추가")
             .setView(dialogBinding.root)
-            .setPositiveButton("추가") { _, _ ->
-                val date = dialogBinding.inputDate.text.toString()
+            .setPositiveButton("확인") { _, _ ->
                 val stationName = dialogBinding.inputStationName.text.toString()
                 val distance = dialogBinding.inputDistance.text.toString().toIntOrNull() ?: 0
                 val pricePerLiter = dialogBinding.inputPricePerLiter.text.toString().toIntOrNull() ?: 0
                 val totalCost = dialogBinding.inputTotalCost.text.toString().toIntOrNull() ?: 0
-                val fuelAmount = if (pricePerLiter > 0) totalCost.toDouble() / pricePerLiter else 0.0
 
-                // 새로운 기록 추가
-                val record = RecordData(
-                    date,
-                    stationName,
-                    distance,
-                    pricePerLiter,
-                    String.format("%.1f", fuelAmount).toDouble(), // 주유량 소수점 1자리
-                    totalCost
-                )
-
-                records.add(0, record) // 리스트의 가장 앞에 추가
-                adapter.notifyItemInserted(0) // RecyclerView 갱신
-                updateCumulativeData()
-
-                // Firebase에 저장
-                database.push().setValue(record)
-                    .addOnSuccessListener {
-                        Log.d("Firebase", "주유 기록 저장 성공")
-                    }
-                    .addOnFailureListener { e ->
-                        Log.w("Firebase", "주유 기록 저장 실패", e)
-                    }
+                if (stationName.isNotBlank()) {
+                    val fuelAmount = if (pricePerLiter > 0) totalCost.toDouble() / pricePerLiter else 0.0
+                    Toast.makeText(
+                        this,
+                        "주유소: $stationName\n주행 거리: $distance km\n가격: $pricePerLiter ₩/L\n주유량: %.2f L\n총 비용: $totalCost"
+                            .format(fuelAmount),
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    Toast.makeText(this, "주유소 정보를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                }
             }
             .setNegativeButton("취소", null)
             .create()
-
         dialog.show()
     }
-
-    // Firebase Realtime Database에서 데이터 기록 가져오기
-    private fun fetchRecordsFromRealtimeDatabase() {
-        database.get()
-            .addOnSuccessListener { snapshot ->
-                records.clear()
-                for (child in snapshot.children) {
-                    val record = child.getValue(RecordData::class.java) // 하위 노드의 값을 RecordData 타입으로 변환
-                    if (record != null) {
-                        records.add(record)
-                    }
-                }
-                records.sortByDescending { it.timestamp } // 데이터 정렬: 최신 순으로 timestamp 기준 내림차순 정렬
-                adapter.notifyDataSetChanged() // RecyclerView 갱신
-                updateCumulativeData()
-            }
-            .addOnFailureListener { e ->
-                Log.w("Firebase", "데이터 가져오기 실패", e)
-            }
-    }
 }
-

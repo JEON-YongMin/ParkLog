@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var dialog: AlertDialog
     private lateinit var database: DatabaseReference
-    private val cars = mutableMapOf<String, String>() // 차량 등록
+    private val cars = mutableMapOf<String, String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
