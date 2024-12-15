@@ -91,4 +91,3 @@ class ParkingLocationList : AppCompatActivity() {
             })
     }
 }
-

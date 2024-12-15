@@ -1,8 +1,9 @@
 package com.example.parklog
 
 data class ParkingLocationData(
-    val photoUri: String = "",
-    val location: String = "",
-    val fee: String = "",
-    val timestamp: String = "" // 저장시간 필드 추가
+    var photoUri: String = "",
+    var location: String = "",
+    var fee: String = "",
+    var timestamp: String = ""
 )
+
