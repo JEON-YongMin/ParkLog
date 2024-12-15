@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+연남 공영주차장 F2-1
+    <!-- 제목 -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="8dp"
+        android:text="수정하기"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <!-- 장소 입력 -->
+    <EditText
+        android:id="@+id/editLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/edit_text_background"
+        android:backgroundTint="#87ECEFF1"
+        android:hint="장소 입력"
+        android:inputType="text"
+        android:padding="10dp" />
+
+    <!-- 요금 입력 -->
+    <EditText
+        android:id="@+id/editFee"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/edit_text_background"
+        android:backgroundTint="#87ECEFF1"
+        android:hint="요금 입력"
+        android:inputType="number"
+        android:padding="10dp" />
+
+    <!-- 버튼 레이아웃 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="end"
+        android:orientation="horizontal" />
+
+</LinearLayout>
