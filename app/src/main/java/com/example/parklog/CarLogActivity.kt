@@ -2,6 +2,7 @@ package com.example.parklog
 
 import android.Manifest
 import android.app.AlertDialog
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -43,6 +44,11 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
         // Google Maps 초기화
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map_fragment) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        binding.homeButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
 
         // 주행 기록 버튼 클릭 처리
         binding.btnAddMileage.setOnClickListener {

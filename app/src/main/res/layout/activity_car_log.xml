@@ -27,18 +27,19 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/logo_text"
+        <!-- ParkLog 로고 -->
+        <ImageView
+            android:id="@+id/logo_icon"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ParkLog"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
+            android:layout_height="55dp"
+            android:contentDescription="ParkLog Logo"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_parklog"
             app:layout_constraintStart_toEndOf="@id/homeButton"
             app:layout_constraintEnd_toStartOf="@id/settingButton"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintVertical_bias="0.5" />
 
         <ImageView
             android:id="@+id/settingButton"
