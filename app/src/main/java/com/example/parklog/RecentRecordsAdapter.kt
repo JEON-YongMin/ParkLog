@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.parklog.databinding.MileageRecordBinding
 import com.example.parklog.databinding.FuelRecordBinding
+import com.example.parklog.model.RecordData
 
 class RecentRecordsAdapter(private var recordList: MutableList<RecordData>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {

@@ -11,7 +11,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Data Binding 초기화
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
     }

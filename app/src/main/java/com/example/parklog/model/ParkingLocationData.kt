@@ -1,4 +1,4 @@
-package com.example.parklog
+package com.example.parklog.model
 
 data class ParkingLocationData(
     var photoUri: String = "",

@@ -15,6 +15,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.parklog.databinding.FragmentParkingLocationBinding
+import com.example.parklog.viewmodel.ParkingLocationViewModel
 
 class ParkingLocationFragment : Fragment() {
 

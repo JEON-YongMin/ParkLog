@@ -3,7 +3,7 @@
     <data>
         <variable
             name="record"
-            type="com.example.parklog.RecordData" />
+            type="com.example.parklog.model.RecordData" />
     </data>
 
     <LinearLayout

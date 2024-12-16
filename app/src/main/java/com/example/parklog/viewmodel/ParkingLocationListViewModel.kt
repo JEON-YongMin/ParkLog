@@ -1,8 +1,9 @@
-package com.example.parklog
+package com.example.parklog.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.parklog.model.ParkingLocationData
 import com.google.firebase.database.*
 
 class ParkingLocationListViewModel : ViewModel() {

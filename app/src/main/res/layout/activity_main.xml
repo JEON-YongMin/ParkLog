@@ -5,7 +5,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.parklog.MainViewModel" />
+            type="com.example.parklog.viewmodel.MainViewModel" />
     </data>
 
     <RelativeLayout
