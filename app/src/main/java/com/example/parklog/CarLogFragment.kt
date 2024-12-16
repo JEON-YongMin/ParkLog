@@ -2,6 +2,7 @@ package com.example.parklog
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,9 @@ import com.example.parklog.model.RecordData
 import com.example.parklog.viewmodel.CarLogViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
@@ -31,6 +35,8 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
     private lateinit var adapter: RecentRecordsAdapter
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var googleMap: GoogleMap
+    private val polylinePoints = mutableListOf<LatLng>()
+    private var locationCallback: LocationCallback? = null
 
     private var startLocation: LatLng? = null
     private var endLocation: LatLng? = null
@@ -117,29 +123,74 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
         )
     }
 
+    // 위치 추적 시작
+    private fun startLocationTracking() {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        val locationRequest = LocationRequest.create().apply {
+            interval = 3000 // 위치 업데이트 주기 (3초)
+            fastestInterval = 2000
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                locationResult.locations.forEach { location ->
+                    val currentLatLng = LatLng(location.latitude, location.longitude)
+                    polylinePoints.add(currentLatLng)
+
+                    // 실시간으로 Polyline 그리기
+                    googleMap.addPolyline(
+                        PolylineOptions()
+                            .addAll(polylinePoints)
+                            .color(android.graphics.Color.BLUE)
+                            .width(8f)
+                    )
+                }
+            }
+        }
+
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback!!, Looper.getMainLooper())
+        } else {
+            requestLocationPermission()
+        }
+    }
+
+    // 위치 추적 중지
+    private fun stopLocationTracking() {
+        locationCallback?.let {
+            fusedLocationClient.removeLocationUpdates(it)
+            locationCallback = null
+        }
+    }
+
     private fun handleMileageButtonClick() {
-        // 권한 체크
         if (ActivityCompat.checkSelfPermission(
                 requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION
             ) != android.content.pm.PackageManager.PERMISSION_GRANTED
         ) {
-            // 권한 요청
             ActivityCompat.requestPermissions(
                 requireActivity(), arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 1
             )
             return
         }
 
-        // 권한이 허용된 경우에만 실행
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             location?.let {
                 val currentLatLng = LatLng(it.latitude, it.longitude)
                 if (startLocation == null) {
                     startLocation = currentLatLng
+                    polylinePoints.clear() // 경로 초기화
+                    startLocationTracking() // 위치 추적 시작
                     googleMap.addMarker(MarkerOptions().position(currentLatLng).title("출발 위치"))
                     showLocationDialog("출발 위치 입력", true)
                 } else if (endLocation == null) {
                     endLocation = currentLatLng
+                    stopLocationTracking() // 위치 추적 중지
                     googleMap.addMarker(MarkerOptions().position(currentLatLng).title("도착 위치"))
                     showLocationDialog("도착 위치 입력", false)
                 }
@@ -189,25 +240,9 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
             .show()
     }
 
-
-
     private fun calculateAndAddRecord() {
-        if (startLocation != null && endLocation != null) {
-            val results = FloatArray(1)
-            android.location.Location.distanceBetween(
-                startLocation!!.latitude, startLocation!!.longitude,
-                endLocation!!.latitude, endLocation!!.longitude,
-                results
-            )
-            val distanceInKm = (results[0] / 1000).toInt()
-
-            // Polyline으로 출발 위치와 도착 위치를 연결
-            val polylineOptions = PolylineOptions()
-                .add(startLocation)
-                .add(endLocation)
-                .color(android.graphics.Color.RED)
-                .width(8f)
-            googleMap.addPolyline(polylineOptions)
+        if (polylinePoints.size > 1) {
+            val distanceInKm = calculateTotalDistance(polylinePoints)
 
             val record = RecordData(
                 date = recordDate ?: "날짜 미입력",
@@ -219,9 +254,26 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
             )
 
             viewModel.addRecord(record)
-
             resetLocationData()
         }
+    }
+
+    // Polyline 경로를 따라 총 이동 거리 계산
+    private fun calculateTotalDistance(points: List<LatLng>): Int {
+        var totalDistance = 0f
+        for (i in 0 until points.size - 1) {
+            val start = points[i]
+            val end = points[i + 1]
+            val results = FloatArray(1)
+
+            android.location.Location.distanceBetween(
+                start.latitude, start.longitude,
+                end.latitude, end.longitude,
+                results
+            )
+            totalDistance += results[0]
+        }
+        return (totalDistance / 1000).toInt()
     }
 
     private fun resetLocationData() {
