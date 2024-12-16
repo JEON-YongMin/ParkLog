@@ -120,91 +120,64 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // 주행 기록 처리
     private fun handleMileageButtonClick() {
-        if (ActivityCompat.checkSelfPermission(
-                this, Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // 위치 권한 요청
-            ActivityCompat.requestPermissions(
-                this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1
-            )
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
             return
         }
 
-        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-            if (location != null) {
-                val currentLatLng = LatLng(location.latitude, location.longitude)
-
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            location?.let {
+                val currentLatLng = LatLng(it.latitude, it.longitude)
                 if (startLocation == null) {
-                    // 출발 위치 설정 및 지도에 표시
                     startLocation = currentLatLng
-                    googleMap.addMarker(
-                        MarkerOptions().position(currentLatLng).title("출발 위치")
-                    )
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
+                    googleMap.addMarker(MarkerOptions().position(currentLatLng).title("출발 위치"))
                     showStartLocationDialog()
                 } else if (endLocation == null) {
-                    // 도착 위치 설정 및 지도에 표시
                     endLocation = currentLatLng
-                    googleMap.addMarker(
-                        MarkerOptions().position(currentLatLng).title("도착 위치")
-                    )
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
+                    googleMap.addMarker(MarkerOptions().position(currentLatLng).title("도착 위치"))
                     showEndLocationDialog()
                 }
-            } else {
-                Toast.makeText(this, "현재 위치를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun showStartLocationDialog() {
         val dialogBinding = StartLocationBinding.inflate(layoutInflater)
-        val dialog = AlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setTitle("출발 위치 입력")
             .setView(dialogBinding.root)
             .setPositiveButton("확인") { _, _ ->
-                val startLocationInput = dialogBinding.inputStartLocation.text.toString()
-                val dateInput = dialogBinding.inputDate.text.toString() // 날짜 입력 필드
-
-                if (startLocationInput.isNotBlank() && dateInput.isNotBlank()) {
-                    startLocationName = startLocationInput
-                    recordDate = dateInput // 입력받은 날짜를 recordDate에 저장
-                    Toast.makeText(this, "출발 위치: $startLocationName", Toast.LENGTH_SHORT).show()
-                } else {
+                startLocationName = dialogBinding.inputStartLocation.text.toString()
+                recordDate = dialogBinding.inputDate.text.toString()
+                if (startLocationName.isNullOrEmpty() || recordDate.isNullOrEmpty()) {
                     Toast.makeText(this, "출발 위치와 날짜를 모두 입력해주세요.", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("취소", null)
-            .create()
-        dialog.show()
+            .show()
     }
-
 
     private fun showEndLocationDialog() {
         val dialogBinding = EndLocationBinding.inflate(layoutInflater)
-        val dialog = AlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setTitle("도착 위치 입력")
             .setView(dialogBinding.root)
             .setPositiveButton("확인") { _, _ ->
-                val endLocationInput = dialogBinding.inputEndLocation.text.toString()
-                if (endLocationInput.isNotBlank()) {
-                    endLocationName = endLocationInput
-                    Toast.makeText(this, "도착 위치: $endLocationName", Toast.LENGTH_SHORT).show()
-
-                    // 주행 거리 계산
+                endLocationName = dialogBinding.inputEndLocation.text.toString()
+                if (!endLocationName.isNullOrEmpty()) {
                     calculateAndShowDistance()
                 } else {
                     Toast.makeText(this, "도착 위치를 입력해주세요.", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("취소", null)
-            .create()
-        dialog.show()
+            .show()
     }
 
     private fun calculateAndShowDistance() {
-        if (startLocation != null && endLocation != null) {
+        if (startLocation != null && endLocation != null &&
+            !startLocationName.isNullOrEmpty() && !endLocationName.isNullOrEmpty()) {
             val results = FloatArray(1)
             Location.distanceBetween(
                 startLocation!!.latitude, startLocation!!.longitude,
@@ -214,34 +187,27 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
             val distanceInKm = results[0] / 1000
             Toast.makeText(this, "주행 거리: %.2f km".format(distanceInKm), Toast.LENGTH_LONG).show()
 
-            // recordDate가 null인 경우 기본값 처리
-            val finalRecordDate = recordDate ?: "날짜 미입력"
-
-            // 기록 추가
             val record = RecordData(
-                date = finalRecordDate,
+                date = recordDate ?: "날짜 미입력",
                 stationName = "",
-                startLocation = startLocationName ?: "",
-                endLocation = endLocationName ?: "",
+                startLocation = startLocationName!!,
+                endLocation = endLocationName!!,
                 distance = distanceInKm.toInt(),
                 pricePerLiter = 0,
-                fuelAmount = 0.0,
-                totalCost = 0,
-                latitude = startLocation!!.latitude,
-                longitude = startLocation!!.longitude
+                totalCost = 0
             )
-            records.add(0, record) // 기록 리스트에 추가
-            adapter.notifyItemInserted(0) // RecyclerView 업데이트
 
-            // 초기화
+            database.push().setValue(record)
+            records.add(0, record)
+            adapter.notifyItemInserted(0)
+
             startLocation = null
             endLocation = null
             startLocationName = null
             endLocationName = null
-            recordDate = null // 초기화
+            recordDate = null
         }
     }
-
 
     // 주유 기록 추가 Dialog
     private fun showAddFuelDialog() {
@@ -256,7 +222,6 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
                 val distance = dialogBinding.inputDistance.text.toString().toIntOrNull() ?: 0
                 val pricePerLiter = dialogBinding.inputPricePerLiter.text.toString().toIntOrNull() ?: 0
                 val totalCost = dialogBinding.inputTotalCost.text.toString().toIntOrNull() ?: 0
-                val fuelAmount = if (pricePerLiter > 0) totalCost.toDouble() / pricePerLiter else 0.0
 
                 // RecordData 생성자 호출 시 모든 필드에 올바른 타입 전달
                 val record = RecordData(
@@ -266,14 +231,13 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
                     endLocation = "",              // 도착 위치 (빈 문자열로 대체)
                     distance = distance,           // Int
                     pricePerLiter = pricePerLiter, // Int
-                    fuelAmount = fuelAmount,       // Double
                     totalCost = totalCost          // Int
                 )
 
                 // 기록 추가
                 records.add(0, record)
                 adapter.notifyItemInserted(0)
-                updateCumulativeData()
+                updateCumulativeData(record.distance, record.totalCost)
 
                 // Firebase에 저장
                 database.push().setValue(record)
@@ -290,31 +254,24 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
         dialog.show()
     }
 
-    private fun updateCumulativeData() {
-        // 기존 누적 데이터를 가져와서 업데이트
+    private fun updateCumulativeData(newDistance: Int, newFuelCost: Int) {
         database.child("CumulativeData").get()
             .addOnSuccessListener { snapshot ->
-                var totalMileage = snapshot.child("totalMileage").getValue(Int::class.java) ?: 0
-                var totalFuelCost = snapshot.child("totalFuelCost").getValue(Int::class.java) ?: 0
+                val totalMileage = snapshot.child("totalMileage").getValue(Int::class.java) ?: 0
+                val totalFuelCost = snapshot.child("totalFuelCost").getValue(Int::class.java) ?: 0
 
-                // 현재 레코드를 바탕으로 추가 계산
-                for (record in records) {
-                    totalMileage += record.distance
-                    totalFuelCost += record.totalCost
-                }
+                val updatedMileage = totalMileage + newDistance
+                val updatedFuelCost = totalFuelCost + newFuelCost
 
-                // 누적 데이터 표시
-                binding.totalMileageValue.text = "$totalMileage km"
-                binding.totalFuelCostValue.text = "₩$totalFuelCost"
-
-                // 누적된 데이터를 Firebase에 저장
                 val cumulativeData = mapOf(
-                    "totalMileage" to totalMileage,
-                    "totalFuelCost" to totalFuelCost
+                    "totalMileage" to updatedMileage,
+                    "totalFuelCost" to updatedFuelCost
                 )
 
                 database.child("CumulativeData").setValue(cumulativeData)
                     .addOnSuccessListener {
+                        binding.totalMileageValue.text = "$updatedMileage km"
+                        binding.totalFuelCostValue.text = "₩$updatedFuelCost"
                         Log.d("Firebase", "누적 데이터 업데이트 성공")
                     }
                     .addOnFailureListener { e ->
@@ -322,11 +279,9 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
             }
             .addOnFailureListener { e ->
-                Log.w("Firebase", "기존 누적 데이터 가져오기 실패", e)
+                Log.w("Firebase", "누적 데이터 가져오기 실패", e)
             }
     }
-
-
 
     private fun fetchRecordsFromRealtimeDatabase() {
         database.get()
@@ -340,6 +295,9 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
                 records.sortByDescending { it.timestamp }
                 adapter.notifyDataSetChanged()
+
+                // 누적 데이터는 fetch 시점에 갱신하지 않음
+                Log.d("Firebase", "주행 기록 데이터 불러오기 성공")
             }
             .addOnFailureListener { e ->
                 Log.w("Firebase", "데이터 가져오기 실패", e)
@@ -360,5 +318,4 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
                 Log.w("Firebase", "누적 데이터 가져오기 실패", e)
             }
     }
-
 }

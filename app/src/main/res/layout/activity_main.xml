@@ -42,7 +42,6 @@
         android:contentDescription="ParkLog Logo"
         android:src="@drawable/ic_parklog2" />
 
-
     <!-- 부제목 텍스트 -->
     <TextView
         android:id="@+id/subTitleText"
@@ -55,43 +54,55 @@
         android:textColor="#BDBDBD"
         android:textSize="16sp" />
 
+    <!-- 차량 정보 및 버튼 -->
     <LinearLayout
         android:id="@+id/carInfoLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/subTitleText"
-        android:layout_marginTop="80dp"
-        android:gravity="center_vertical"
+        android:layout_marginTop="50dp"
         android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:paddingStart="16dp"
         android:paddingEnd="16dp">
 
-        <!-- 현재 연결된 차량 버튼 -->
+        <!-- 현재 연결된 차량 텍스트 -->
         <Button
-            android:id="@+id/connectedCarButton"
+            android:id="@+id/connectedCarText"
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="1"
             android:backgroundTint="#ECEFF1"
-            android:fontFamily="sans-serif-medium"
-            android:gravity="center"
             android:text=""
             android:textColor="#3F2A87"
-            android:textSize="16sp" />
+            android:textSize="18sp" />
 
-        <!-- + 버튼 -->
+
+
+        <!-- 등록 버튼 -->
         <Button
             android:id="@+id/addCarButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginStart="16dp"
             android:backgroundTint="@android:color/holo_blue_dark"
-            android:fontFamily="sans-serif-medium"
-            android:gravity="center"
             android:text="+"
             android:textColor="@android:color/white"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
+
+        <!-- 삭제 버튼 -->
+        <Button
+            android:id="@+id/deleteCarButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@android:color/holo_red_dark"
+            android:text="-"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
     </LinearLayout>
 
     <!-- Save Parking Location 버튼 -->
@@ -132,4 +143,5 @@
         android:text="Car Log"
         android:textColor="#3F2A87"
         android:textSize="18sp" />
+
 </RelativeLayout>

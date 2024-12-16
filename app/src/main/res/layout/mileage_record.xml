@@ -16,7 +16,7 @@
         android:gravity="center_vertical"
         android:text=""
         android:textSize="14sp"
-        android:textColor="#888888"
+        android:textColor="#000000"
         android:layout_marginEnd="16dp" />
 
     <!-- 가운데 섹션: 출발 위치/도착 위치 -->
@@ -31,16 +31,16 @@
             android:id="@+id/start_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="출발: "
-            android:textSize="14sp"
+            android:text=""
+            android:textSize="12sp"
             android:textColor="#000000" />
 
         <TextView
             android:id="@+id/end_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="도착: "
-            android:textSize="14sp"
+            android:text=""
+            android:textSize="12sp"
             android:textColor="#000000" />
     </LinearLayout>
 
@@ -52,5 +52,6 @@
         android:gravity="center_vertical"
         android:text="주행 거리: km"
         android:textSize="14sp"
-        android:textColor="#3F2A87" />
+        android:textColor="#3F2A87"
+        android:textStyle="bold"/>
 </LinearLayout>

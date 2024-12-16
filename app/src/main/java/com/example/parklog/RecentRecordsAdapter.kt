@@ -31,9 +31,8 @@ class RecentRecordsAdapter(private val recordList: MutableList<RecordData>) :
         fun bind(record: RecordData) {
             binding.date.text = record.date
             binding.stationName.text = "주유소: ${record.stationName}"
-            binding.distance.text = "주행 거리: ${record.distance} km"
             binding.pricePerLiter.text = "가격: ${record.pricePerLiter} ₩/L"
-            binding.fuelAmount.text = "주유량: ${String.format("%.2f", record.fuelAmount)} L"
+            binding.distance.text = "주행 거리: ${record.distance} km"
             binding.totalCost.text = "총 비용: ₩${record.totalCost}"
         }
     }
