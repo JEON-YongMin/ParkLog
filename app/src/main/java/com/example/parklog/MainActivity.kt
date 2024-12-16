@@ -11,10 +11,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // View Binding 초기화
+        // Data Binding 초기화
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // NavHostFragment를 통해 Navigation Graph 관리
     }
 }

@@ -36,7 +36,8 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
-        viewBinding = true // 여기서 enabled 대신 `viewBinding = true`를 사용
+        dataBinding = true
+        viewBinding = true
     }
 }
 
@@ -51,10 +52,11 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.12.0")
     implementation(libs.firebase.database)
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
-    implementation ("com.google.android.gms:play-services-maps:18.1.0")
-    implementation ("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

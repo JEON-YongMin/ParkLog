@@ -1,11 +1,18 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#FFFDE7"
-    tools:context=".CarLogActivity">
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.parklog.CarLogViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFFDE7"
+        tools:context=".CarLogFragment">
 
     <!-- 상단 바 -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -218,4 +225,5 @@
                 android:nestedScrollingEnabled="false" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
-</RelativeLayout>
+    </RelativeLayout>
+</layout>

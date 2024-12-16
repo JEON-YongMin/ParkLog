@@ -1,76 +1,84 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="12dp"
-    android:background="@android:color/white"
-    android:elevation="2dp"
-    android:layout_margin="8dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- 왼쪽 섹션: 날짜 -->
-    <TextView
-        android:id="@+id/date"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical"
-        android:text=""
-        android:textSize="14sp"
-        android:textColor="#000000"
-        android:layout_marginEnd="16dp" />
+    <data>
+        <variable
+            name="record"
+            type="com.example.parklog.RecordData" />
+    </data>
 
-    <!-- 가운데 섹션: 주유소 이름과 1L당 가격 -->
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center_vertical"
-        android:orientation="vertical">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:background="@android:color/white"
+        android:elevation="2dp"
+        android:layout_margin="8dp">
 
-        <!-- 주유소 이름 -->
+        <!-- 왼쪽 섹션: 날짜 -->
         <TextView
-            android:id="@+id/station_name"
+            android:id="@+id/date"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
             android:text=""
+            android:textSize="14sp"
             android:textColor="#000000"
-            android:textSize="12sp" />
+            android:layout_marginEnd="16dp" />
 
-        <!-- 1L당 가격 -->
-        <TextView
-            android:id="@+id/price_per_liter"
+        <!-- 가운데 섹션: 주유소 이름과 1L당 가격 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <!-- 주유소 이름 -->
+            <TextView
+                android:id="@+id/station_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="#000000"
+                android:textSize="12sp" />
+
+            <!-- 1L당 가격 -->
+            <TextView
+                android:id="@+id/price_per_liter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="12sp"
+                android:textColor="#000000" />
+        </LinearLayout>
+
+        <!-- 오른쪽 섹션: 주행 거리와 총 비용 -->
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="12sp"
-            android:textColor="#000000" />
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <!-- 주행 거리 -->
+            <TextView
+                android:id="@+id/distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="14sp"
+                android:textColor="#3F2A87"
+                android:textStyle="bold" />
+
+            <!-- 총 비용 -->
+            <TextView
+                android:id="@+id/total_cost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="14sp"
+                android:textColor="#3F2A87"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
-
-    <!-- 오른쪽 섹션: 주행 거리와 총 비용 -->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical"
-        android:orientation="vertical">
-
-        <!-- 주행 거리 -->
-        <TextView
-            android:id="@+id/distance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="14sp"
-            android:textColor="#3F2A87"
-            android:textStyle="bold" />
-
-        <!-- 총 비용 -->
-        <TextView
-            android:id="@+id/total_cost"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="14sp"
-            android:textColor="#3F2A87"
-            android:textStyle="bold" />
-    </LinearLayout>
-</LinearLayout>
+</layout>

@@ -4,14 +4,13 @@ import android.app.AlertDialog
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.parklog.databinding.ListParkingBinding
 
 class ParkingLocationAdapter(
-    private val parkingList: MutableList<ParkingLocationData>,
+    private var parkingList: MutableList<ParkingLocationData>,
     private val onDeleteClicked: (Int) -> Unit,
     private val onEditClicked: (Int, String, String) -> Unit
 ) : RecyclerView.Adapter<ParkingLocationAdapter.ViewHolder>() {
@@ -24,12 +23,10 @@ class ParkingLocationAdapter(
             binding.txtFee.text = data.fee
             binding.txtTimestamp.text = data.timestamp
 
-            // 이미지 불러오기
             Glide.with(binding.root.context)
                 .load(data.photoUri)
                 .into(binding.imageView3)
 
-            // 이미지 클릭 이벤트: Dialog로 확대 표시
             binding.imageView3.setOnClickListener {
                 showImageDialog(binding.root.context, data.photoUri)
             }
@@ -39,7 +36,6 @@ class ParkingLocationAdapter(
             }
 
             binding.btnEdit.setOnClickListener {
-                // 수정 기능 실행
                 onEditClicked(position, data.location, data.fee)
             }
         }
@@ -59,6 +55,12 @@ class ParkingLocationAdapter(
     }
 
     override fun getItemCount(): Int = parkingList.size
+
+    fun updateData(newList: List<ParkingLocationData>) {
+        parkingList.clear()
+        parkingList.addAll(newList)
+        notifyDataSetChanged()
+    }
 
     private fun showImageDialog(context: Context, imageUrl: String) {
         val dialog = AlertDialog.Builder(context).create()

@@ -1,57 +1,65 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="12dp"
-    android:background="@android:color/white"
-    android:elevation="2dp"
-    android:layout_margin="8dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- 왼쪽 섹션: 날짜 -->
-    <TextView
-        android:id="@+id/date"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical"
-        android:text=""
-        android:textSize="14sp"
-        android:textColor="#000000"
-        android:layout_marginEnd="16dp" />
+    <data>
+        <variable
+            name="record"
+            type="com.example.parklog.RecordData" />
+    </data>
 
-    <!-- 가운데 섹션: 출발 위치/도착 위치 -->
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:gravity="center_vertical">
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:background="@android:color/white"
+        android:elevation="2dp"
+        android:layout_margin="8dp">
 
+        <!-- 왼쪽 섹션: 날짜 -->
         <TextView
-            android:id="@+id/start_location"
+            android:id="@+id/date"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
             android:text=""
-            android:textSize="12sp"
-            android:textColor="#000000" />
+            android:textSize="14sp"
+            android:textColor="#000000"
+            android:layout_marginEnd="16dp" />
 
-        <TextView
-            android:id="@+id/end_location"
-            android:layout_width="wrap_content"
+        <!-- 가운데 섹션: 출발 위치/도착 위치 -->
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/start_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="12sp"
+                android:textColor="#000000" />
+
+            <TextView
+                android:id="@+id/end_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="12sp"
+                android:textColor="#000000" />
+        </LinearLayout>
+
+        <!-- 오른쪽 섹션: 주행 거리 -->
+        <TextView
+            android:id="@+id/mileage"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
             android:text=""
-            android:textSize="12sp"
-            android:textColor="#000000" />
+            android:textSize="14sp"
+            android:textColor="#3F2A87"
+            android:textStyle="bold"/>
     </LinearLayout>
-
-    <!-- 오른쪽 섹션: 주행 거리 -->
-    <TextView
-        android:id="@+id/mileage"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical"
-        android:text="주행 거리: km"
-        android:textSize="14sp"
-        android:textColor="#3F2A87"
-        android:textStyle="bold"/>
-</LinearLayout>
+</layout>

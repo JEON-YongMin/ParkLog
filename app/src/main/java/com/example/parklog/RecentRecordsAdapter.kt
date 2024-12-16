@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.parklog.databinding.MileageRecordBinding
 import com.example.parklog.databinding.FuelRecordBinding
 
-class RecentRecordsAdapter(private val recordList: MutableList<RecordData>) :
+class RecentRecordsAdapter(private var recordList: MutableList<RecordData>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -69,4 +69,10 @@ class RecentRecordsAdapter(private val recordList: MutableList<RecordData>) :
     }
 
     override fun getItemCount(): Int = recordList.size
+
+    fun updateRecords(newRecords: List<RecordData>) {
+        recordList.clear()
+        recordList.addAll(newRecords)
+        notifyDataSetChanged()
+    }
 }

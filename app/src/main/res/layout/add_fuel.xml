@@ -1,45 +1,47 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-    <!-- 주유 날짜 -->
-    <EditText
-        android:id="@+id/input_date"
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="주유 날짜 (YYYY.MM.DD)"
-        android:inputType="text" />
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <!-- 주유소 이름 -->
-    <EditText
-        android:id="@+id/input_station_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="주유소 이름" />
+        <!-- 주유 날짜 -->
+        <EditText
+            android:id="@+id/input_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="주유 날짜 (YYYY.MM.DD)"
+            android:inputType="text" />
 
-    <!-- 주행 거리 -->
-    <EditText
-        android:id="@+id/input_distance"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="주행 거리 (km)"
-        android:inputType="number" />
+        <!-- 주유소 이름 -->
+        <EditText
+            android:id="@+id/input_station_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="주유소 이름" />
 
-    <!-- 1L당 가격 -->
-    <EditText
-        android:id="@+id/input_price_per_liter"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="1L당 가격 (₩)"
-        android:inputType="number" />
+        <!-- 주행 거리 -->
+        <EditText
+            android:id="@+id/input_distance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="주행 거리 (km)"
+            android:inputType="number" />
 
-    <!-- 총 비용 -->
-    <EditText
-        android:id="@+id/input_total_cost"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="총 비용 (₩)"
-        android:inputType="number" />
-</LinearLayout>
+        <!-- 1L당 가격 -->
+        <EditText
+            android:id="@+id/input_price_per_liter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="1L당 가격 (₩)"
+            android:inputType="number" />
+
+        <!-- 총 비용 -->
+        <EditText
+            android:id="@+id/input_total_cost"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="총 비용 (₩)"
+            android:inputType="number" />
+    </LinearLayout>
+</layout>
