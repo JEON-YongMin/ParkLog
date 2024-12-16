@@ -30,7 +30,7 @@ class CarLogRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                onFailure("Failed to fetch records: ${error.message}")
+                onFailure("기록을 가져오지 못했습니다: ${error.message}")
             }
         })
     }
@@ -38,6 +38,6 @@ class CarLogRepository {
     fun addRecord(record: RecordData, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
         database.child("CarRecords").push().setValue(record)
             .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { onFailure("Failed to add record") }
+            .addOnFailureListener { onFailure("기록을 추가하지 못했습니다.") }
     }
 }

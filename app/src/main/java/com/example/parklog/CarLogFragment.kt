@@ -25,6 +25,7 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
 
     private var _binding: FragmentCarLogBinding? = null
     private val binding get() = _binding!!
+
     private val viewModel: CarLogViewModel by viewModels()
 
     private lateinit var adapter: RecentRecordsAdapter
@@ -58,11 +59,9 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
-        // 버튼 이벤트 설정
         binding.homeButton.setOnClickListener {
             startActivity(Intent(requireContext(), MainActivity::class.java))
         }
-
         binding.btnAddMileage.setOnClickListener { handleMileageButtonClick() }
         binding.btnAddFuel.setOnClickListener { showAddFuelDialog() }
     }
@@ -83,8 +82,8 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
     }
 
-    override fun onMapReady(map: GoogleMap) {
-        googleMap = map
+    override fun onMapReady(googleMap: GoogleMap) {
+        this.googleMap = googleMap
         googleMap.uiSettings.isZoomControlsEnabled = true
         setCurrentLocation()
     }
@@ -107,7 +106,7 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun showDefaultLocation() {
-        val defaultLocation = LatLng(37.5665, 126.9780) // 서울
+        val defaultLocation = LatLng(37.5975, 126.8647) // 항공대
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f))
         Toast.makeText(requireContext(), "현재 위치를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
     }
@@ -158,13 +157,13 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
         // 힌트 값 명확하게 설정
         if (isStart) {
             dialogBinding.inputStartLocation.hint = "출발 위치를 입력하세요"
-            dialogBinding.inputStartLocation.setText("") // 이전 값 초기화
-            dialogBinding.inputDate.visibility = View.VISIBLE // 날짜 필드 표시
-            dialogBinding.inputDate.setText("") // 날짜 입력 초기화
+            dialogBinding.inputStartLocation.setText("")
+            dialogBinding.inputDate.visibility = View.VISIBLE
+            dialogBinding.inputDate.setText("")
         } else {
             dialogBinding.inputStartLocation.hint = "도착 위치를 입력하세요"
-            dialogBinding.inputStartLocation.setText("") // 이전 값 초기화
-            dialogBinding.inputDate.visibility = View.GONE // 날짜 필드 숨김
+            dialogBinding.inputStartLocation.setText("")
+            dialogBinding.inputDate.visibility = View.GONE
         }
 
         AlertDialog.Builder(requireContext())
@@ -194,7 +193,6 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
 
     private fun calculateAndAddRecord() {
         if (startLocation != null && endLocation != null) {
-            // 거리 계산
             val results = FloatArray(1)
             android.location.Location.distanceBetween(
                 startLocation!!.latitude, startLocation!!.longitude,
@@ -205,13 +203,12 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
 
             // Polyline으로 출발 위치와 도착 위치를 연결
             val polylineOptions = PolylineOptions()
-                .add(startLocation) // 출발 위치
-                .add(endLocation)   // 도착 위치
-                .color(android.graphics.Color.BLUE) // 선 색상
-                .width(8f) // 선 두께
+                .add(startLocation)
+                .add(endLocation)
+                .color(android.graphics.Color.RED)
+                .width(8f)
             googleMap.addPolyline(polylineOptions)
 
-            // RecordData 객체 생성
             val record = RecordData(
                 date = recordDate ?: "날짜 미입력",
                 startLocation = startLocationName ?: "",
@@ -221,14 +218,11 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
                 totalCost = 0
             )
 
-            // ViewModel에 기록 추가
             viewModel.addRecord(record)
 
-            // 초기화
             resetLocationData()
         }
     }
-
 
     private fun resetLocationData() {
         startLocation = null

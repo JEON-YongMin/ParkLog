@@ -15,7 +15,36 @@ class RecentRecordsAdapter(private var recordList: MutableList<RecordData>) :
         private const val TYPE_FUEL = 1
     }
 
-    // 주행 기록 ViewHolder
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return if (viewType == TYPE_MILEAGE) {
+            MileageViewHolder(MileageRecordBinding.inflate(inflater, parent, false))
+        } else {
+            FuelViewHolder(FuelRecordBinding.inflate(inflater, parent, false))
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val record = recordList[position]
+        when (holder) {
+            is MileageViewHolder -> holder.bind(record)
+            is FuelViewHolder -> holder.bind(record)
+        }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return if (recordList[position].stationName.isNullOrEmpty()) TYPE_MILEAGE else TYPE_FUEL
+    }
+
+    override fun getItemCount(): Int = recordList.size
+
+    fun updateRecords(newRecords: List<RecordData>) {
+        recordList.clear()
+        recordList.addAll(newRecords)
+        notifyDataSetChanged()
+    }
+
+    // ViewHolder for mileage records
     class MileageViewHolder(private val binding: MileageRecordBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(record: RecordData) {
@@ -26,7 +55,7 @@ class RecentRecordsAdapter(private var recordList: MutableList<RecordData>) :
         }
     }
 
-    // 주유 기록 ViewHolder
+    // ViewHolder for fuel records
     class FuelViewHolder(private val binding: FuelRecordBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(record: RecordData) {
@@ -36,44 +65,5 @@ class RecentRecordsAdapter(private var recordList: MutableList<RecordData>) :
             binding.distance.text = "주행 거리: ${record.distance} km"
             binding.totalCost.text = "총 비용: ₩${record.totalCost}"
         }
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return if (recordList[position].stationName.isNullOrEmpty()) TYPE_MILEAGE else TYPE_FUEL
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (viewType == TYPE_MILEAGE) {
-            val binding = MileageRecordBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false
-            )
-            MileageViewHolder(binding)
-        } else {
-            val binding = FuelRecordBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false
-            )
-            FuelViewHolder(binding)
-        }
-    }
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val record = recordList[position]
-        if (holder is MileageViewHolder) {
-            holder.bind(record)
-        } else if (holder is FuelViewHolder) {
-            holder.bind(record)
-        }
-    }
-
-    override fun getItemCount(): Int = recordList.size
-
-    fun updateRecords(newRecords: List<RecordData>) {
-        recordList.clear()
-        recordList.addAll(newRecords)
-        notifyDataSetChanged()
     }
 }

@@ -26,13 +26,13 @@ class CarLogViewModel : ViewModel() {
                 _records.value = fetchedRecords
                 _cumulativeData.value = cumulative
             },
-            onFailure = { /* Handle error */ }
+            onFailure = {}
         )
     }
 
     fun addRecord(record: RecordData) {
         repository.addRecord(record, onSuccess = {
             fetchRecords()
-        }, onFailure = { /* Handle error */ })
+        }, onFailure = {})
     }
 }
