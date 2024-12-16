@@ -88,10 +88,35 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
         googleMap = map
         googleMap.uiSettings.isZoomControlsEnabled = true
 
-        // 기본 위치로 서울 설정
-        val defaultLocation = LatLng(37.5665, 126.9780) // 서울
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f))
+        // FusedLocationProviderClient 초기화
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        if (ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            googleMap.isMyLocationEnabled = true
+
+            // 현재 위치 가져오기
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                if (location != null) {
+                    val currentLocation = LatLng(location.latitude, location.longitude)
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
+                } else {
+                    // 위치를 가져올 수 없는 경우 기본 위치 설정 (서울)
+                    val defaultLocation = LatLng(37.5665, 126.9780)
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f))
+                    Toast.makeText(this, "현재 위치를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } else {
+            // 위치 권한이 없으면 요청
+            ActivityCompat.requestPermissions(
+                this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1
+            )
+        }
     }
+
 
     // 주행 기록 처리
     private fun handleMileageButtonClick() {
@@ -208,16 +233,6 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
             records.add(0, record) // 기록 리스트에 추가
             adapter.notifyItemInserted(0) // RecyclerView 업데이트
 
-            // 사용자 확인 후 저장
-            AlertDialog.Builder(this)
-                .setTitle("주행 기록 저장")
-                .setMessage("주행 기록을 저장하시겠습니까?")
-                .setPositiveButton("저장") { _, _ ->
-                    database.push().setValue(record) // Firebase에 저장
-                }
-                .setNegativeButton("취소", null)
-                .show()
-
             // 초기화
             startLocation = null
             endLocation = null
@@ -276,32 +291,41 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun updateCumulativeData() {
-        var totalMileage = 0
-        var totalFuelCost = 0
+        // 기존 누적 데이터를 가져와서 업데이트
+        database.child("CumulativeData").get()
+            .addOnSuccessListener { snapshot ->
+                var totalMileage = snapshot.child("totalMileage").getValue(Int::class.java) ?: 0
+                var totalFuelCost = snapshot.child("totalFuelCost").getValue(Int::class.java) ?: 0
 
-        for (record in records) {
-            totalMileage += record.distance
-            totalFuelCost += record.totalCost
-        }
+                // 현재 레코드를 바탕으로 추가 계산
+                for (record in records) {
+                    totalMileage += record.distance
+                    totalFuelCost += record.totalCost
+                }
 
-        // 누적 데이터 표시
-        binding.totalMileageValue.text = "$totalMileage km"
-        binding.totalFuelCostValue.text = "₩$totalFuelCost"
+                // 누적 데이터 표시
+                binding.totalMileageValue.text = "$totalMileage km"
+                binding.totalFuelCostValue.text = "₩$totalFuelCost"
 
-        // Firebase에 누적 데이터 저장
-        val cumulativeData = mapOf(
-            "totalMileage" to totalMileage,
-            "totalFuelCost" to totalFuelCost
-        )
+                // 누적된 데이터를 Firebase에 저장
+                val cumulativeData = mapOf(
+                    "totalMileage" to totalMileage,
+                    "totalFuelCost" to totalFuelCost
+                )
 
-        database.child("CumulativeData").setValue(cumulativeData)
-            .addOnSuccessListener {
-                Log.d("Firebase", "누적 데이터 저장 성공")
+                database.child("CumulativeData").setValue(cumulativeData)
+                    .addOnSuccessListener {
+                        Log.d("Firebase", "누적 데이터 업데이트 성공")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("Firebase", "누적 데이터 업데이트 실패", e)
+                    }
             }
             .addOnFailureListener { e ->
-                Log.w("Firebase", "누적 데이터 저장 실패", e)
+                Log.w("Firebase", "기존 누적 데이터 가져오기 실패", e)
             }
     }
+
 
 
     private fun fetchRecordsFromRealtimeDatabase() {
