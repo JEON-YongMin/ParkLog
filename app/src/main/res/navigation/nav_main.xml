@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_main"
+    app:startDestination="@id/mainFragment">
+
+    <!-- MainFragment -->
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.example.parklog.MainFragment"
+        android:label="MainFragment" />
+
+    <!-- ParkingLocationFragment -->
+    <fragment
+        android:id="@+id/parkingLocationFragment"
+        android:name="com.example.parklog.ParkingLocationFragment"
+        android:label="Parking Location Fragment" />
+
+    <!-- ParkingLocationListFragment -->
+    <fragment
+        android:id="@+id/parkingLocationListFragment"
+        android:name="com.example.parklog.ParkingLocationListFragment"
+        android:label="Parking Location List Fragment" />
+
+    <!-- CarLogFragment -->
+    <fragment
+        android:id="@+id/carLogFragment"
+        android:name="com.example.parklog.CarLogFragment"
+        android:label="Car Log Fragment" />
+
+</navigation>

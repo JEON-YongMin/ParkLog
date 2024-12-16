@@ -1,0 +1,137 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFDE7">
+
+    <!-- 상단 네이비색 바 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="#3F2A87"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp">
+
+        <!-- 설정 아이콘 -->
+        <ImageView
+            android:id="@+id/settingButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="Settings Button"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_settings"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.5" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 제목 이미지 (로고) -->
+    <ImageView
+        android:id="@+id/logoImage"
+        android:layout_width="231dp"
+        android:layout_height="99dp"
+        android:layout_below="@id/title_bar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp"
+        android:contentDescription="ParkLog Logo"
+        android:src="@drawable/ic_parklog2" />
+
+    <!-- 부제목 텍스트 -->
+    <TextView
+        android:id="@+id/subTitleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/logoImage"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:text="Save your spot, find it fast"
+        android:textColor="#BDBDBD"
+        android:textSize="16sp" />
+
+    <!-- 차량 정보 및 버튼 -->
+    <LinearLayout
+        android:id="@+id/carInfoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/subTitleText"
+        android:layout_marginTop="50dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <Button
+            android:id="@+id/connectedCarText"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:backgroundTint="#ECEFF1"
+            android:text=""
+            android:textColor="#3F2A87"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/addCarButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="16dp"
+            android:backgroundTint="@android:color/holo_blue_dark"
+            android:text="+"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/deleteCarButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="@android:color/holo_red_dark"
+            android:text="-"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Save Parking Location 버튼 -->
+    <Button
+        android:id="@+id/parkingLocationButton"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/carInfoLayout"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:backgroundTint="#ECEFF1"
+        android:text="Save Parking Location"
+        android:textColor="#3F2A87"
+        android:textSize="18sp" />
+
+    <!-- My Parking List 버튼 -->
+    <Button
+        android:id="@+id/myParkingListButton"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/parkingLocationButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:backgroundTint="#ECEFF1"
+        android:text="My Parking List"
+        android:textColor="#3F2A87"
+        android:textSize="18sp" />
+
+    <!-- CarLog 버튼 -->
+    <Button
+        android:id="@+id/carLogButton"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/myParkingListButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:backgroundTint="#ECEFF1"
+        android:text="Car Log"
+        android:textColor="#3F2A87"
+        android:textSize="18sp" />
+
+</RelativeLayout>

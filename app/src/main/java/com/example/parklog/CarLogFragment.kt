@@ -1,16 +1,15 @@
 package com.example.parklog
 
-import android.Manifest
 import android.app.AlertDialog
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parklog.databinding.*
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -24,9 +23,11 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 
-class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
+class CarLogFragment : Fragment(), OnMapReadyCallback {
 
-    private lateinit var binding: ActivityCarLogBinding
+    private var _binding: FragmentCarLogBinding? = null
+    private val binding get() = _binding!!
+
     private lateinit var adapter: RecentRecordsAdapter
     private lateinit var database: DatabaseReference
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -34,22 +35,25 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private val records = mutableListOf<RecordData>()
 
-    private var recordDate: String? = null // 클래스 레벨 변수 추가
+    private var recordDate: String? = null
     private var startLocation: LatLng? = null
     private var endLocation: LatLng? = null
     private var startLocationName: String? = null
     private var endLocationName: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentCarLogBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        // View Binding 초기화
-        binding = ActivityCarLogBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         // RecyclerView 초기화
         adapter = RecentRecordsAdapter(records)
-        binding.recyclerRecentRecords.layoutManager = LinearLayoutManager(this)
+        binding.recyclerRecentRecords.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerRecentRecords.adapter = adapter
 
         // Firebase 초기화
@@ -62,17 +66,11 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
         fetchRecordsFromRealtimeDatabase()
 
         // FusedLocationProviderClient 초기화
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
         // Google Maps 초기화
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.map_fragment) as SupportMapFragment
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map_fragment) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
-        binding.homeButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-        }
-
 
         binding.btnAddMileage.setOnClickListener {
             handleMileageButtonClick()
@@ -83,46 +81,38 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    // Google Maps 준비 완료
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
         googleMap.uiSettings.isZoomControlsEnabled = true
 
-        // FusedLocationProviderClient 초기화
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
         if (ActivityCompat.checkSelfPermission(
-                this, Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
+                requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
         ) {
             googleMap.isMyLocationEnabled = true
-
-            // 현재 위치 가져오기
             fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                 if (location != null) {
                     val currentLocation = LatLng(location.latitude, location.longitude)
                     googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
                 } else {
-                    // 위치를 가져올 수 없는 경우 기본 위치 설정 (서울)
-                    val defaultLocation = LatLng(37.5665, 126.9780)
+                    // 기본 위치 설정
+                    val defaultLocation = LatLng(37.5665, 126.9780) // 서울
                     googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 12f))
-                    Toast.makeText(this, "현재 위치를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "현재 위치를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
                 }
             }
         } else {
-            // 위치 권한이 없으면 요청
+            // 권한 요청
             ActivityCompat.requestPermissions(
-                this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1
+                requireActivity(), arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 1
             )
         }
     }
 
-
-    // 주행 기록 처리
     private fun handleMileageButtonClick() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+        if (ActivityCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
+            != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(), arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 1)
             return
         }
 
@@ -143,15 +133,15 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun showStartLocationDialog() {
-        val dialogBinding = StartLocationBinding.inflate(layoutInflater)
-        AlertDialog.Builder(this)
+        val dialogBinding = StartLocationBinding.inflate(LayoutInflater.from(requireContext()))
+        AlertDialog.Builder(requireContext())
             .setTitle("출발 위치 입력")
             .setView(dialogBinding.root)
             .setPositiveButton("확인") { _, _ ->
                 startLocationName = dialogBinding.inputStartLocation.text.toString()
                 recordDate = dialogBinding.inputDate.text.toString()
                 if (startLocationName.isNullOrEmpty() || recordDate.isNullOrEmpty()) {
-                    Toast.makeText(this, "출발 위치와 날짜를 모두 입력해주세요.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "출발 위치와 날짜를 모두 입력해주세요.", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("취소", null)
@@ -159,8 +149,8 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun showEndLocationDialog() {
-        val dialogBinding = EndLocationBinding.inflate(layoutInflater)
-        AlertDialog.Builder(this)
+        val dialogBinding = EndLocationBinding.inflate(LayoutInflater.from(requireContext()))
+        AlertDialog.Builder(requireContext())
             .setTitle("도착 위치 입력")
             .setView(dialogBinding.root)
             .setPositiveButton("확인") { _, _ ->
@@ -168,7 +158,7 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
                 if (!endLocationName.isNullOrEmpty()) {
                     calculateAndShowDistance()
                 } else {
-                    Toast.makeText(this, "도착 위치를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "도착 위치를 입력해주세요.", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("취소", null)
@@ -185,7 +175,7 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
                 results
             )
             val distanceInKm = results[0] / 1000
-            Toast.makeText(this, "주행 거리: %.2f km".format(distanceInKm), Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "주행 거리: %.2f km".format(distanceInKm), Toast.LENGTH_LONG).show()
 
             val record = RecordData(
                 date = recordDate ?: "날짜 미입력",
@@ -209,11 +199,10 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    // 주유 기록 추가 Dialog
     private fun showAddFuelDialog() {
-        val dialogBinding = AddFuelBinding.inflate(LayoutInflater.from(this))
+        val dialogBinding = AddFuelBinding.inflate(LayoutInflater.from(requireContext()))
 
-        val dialog = AlertDialog.Builder(this)
+        AlertDialog.Builder(requireContext())
             .setTitle("주유 기록 추가")
             .setView(dialogBinding.root)
             .setPositiveButton("추가") { _, _ ->
@@ -223,23 +212,20 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
                 val pricePerLiter = dialogBinding.inputPricePerLiter.text.toString().toIntOrNull() ?: 0
                 val totalCost = dialogBinding.inputTotalCost.text.toString().toIntOrNull() ?: 0
 
-                // RecordData 생성자 호출 시 모든 필드에 올바른 타입 전달
                 val record = RecordData(
-                    date = date,                   // String
-                    stationName = stationName,     // String
-                    startLocation = "",            // 출발 위치 (빈 문자열로 대체)
-                    endLocation = "",              // 도착 위치 (빈 문자열로 대체)
-                    distance = distance,           // Int
-                    pricePerLiter = pricePerLiter, // Int
-                    totalCost = totalCost          // Int
+                    date = date,
+                    stationName = stationName,
+                    startLocation = "",
+                    endLocation = "",
+                    distance = distance,
+                    pricePerLiter = pricePerLiter,
+                    totalCost = totalCost
                 )
 
-                // 기록 추가
                 records.add(0, record)
                 adapter.notifyItemInserted(0)
                 updateCumulativeData(record.distance, record.totalCost)
 
-                // Firebase에 저장
                 database.push().setValue(record)
                     .addOnSuccessListener {
                         Log.d("Firebase", "주유 기록 저장 성공")
@@ -249,9 +235,7 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
             }
             .setNegativeButton("취소", null)
-            .create()
-
-        dialog.show()
+            .show()
     }
 
     private fun updateCumulativeData(newDistance: Int, newFuelCost: Int) {
@@ -283,6 +267,7 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
             }
     }
 
+
     private fun fetchRecordsFromRealtimeDatabase() {
         database.get()
             .addOnSuccessListener { snapshot ->
@@ -296,13 +281,13 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
                 records.sortByDescending { it.timestamp }
                 adapter.notifyDataSetChanged()
 
-                // 누적 데이터는 fetch 시점에 갱신하지 않음
                 Log.d("Firebase", "주행 기록 데이터 불러오기 성공")
             }
             .addOnFailureListener { e ->
                 Log.w("Firebase", "데이터 가져오기 실패", e)
             }
     }
+
 
     private fun fetchCumulativeDataFromFirebase() {
         database.child("CumulativeData").get()
@@ -317,5 +302,10 @@ class CarLogActivity : AppCompatActivity(), OnMapReadyCallback {
             .addOnFailureListener { e ->
                 Log.w("Firebase", "누적 데이터 가져오기 실패", e)
             }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
