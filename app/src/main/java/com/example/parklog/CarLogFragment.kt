@@ -1,5 +1,6 @@
 package com.example.parklog
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -56,6 +57,11 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
 
         observeViewModel()
 
+        binding.homeButton.setOnClickListener {
+            val intent = Intent(requireContext(), MainActivity::class.java)
+            requireActivity().startActivity(intent)
+        }
+
         binding.btnAddMileage.setOnClickListener {
             handleMileageButtonClick()
         }
@@ -101,6 +107,7 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
             )
         }
     }
+
 
     private fun handleMileageButtonClick() {
         if (ActivityCompat.checkSelfPermission(

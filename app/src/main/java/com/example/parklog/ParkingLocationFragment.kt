@@ -1,10 +1,12 @@
 package com.example.parklog
 
+import android.Manifest
 import android.content.ContentValues
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +23,16 @@ class ParkingLocationFragment : Fragment() {
 
     private val viewModel: ParkingLocationViewModel by viewModels()
     private var photoUri: Uri? = null
+
+    // 카메라 권한 요청 런처
+    private val requestCameraPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                launchCamera()
+            } else {
+                Toast.makeText(requireContext(), "카메라 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
 
     // 사진 촬영 런처
     private val takePictureLauncher =
@@ -66,8 +78,7 @@ class ParkingLocationFragment : Fragment() {
 
         // 카메라 버튼 클릭 이벤트
         binding.btnCamera.setOnClickListener {
-            photoUri = createImageFileUri()
-            photoUri?.let { takePictureLauncher.launch(it) }
+            requestCameraPermission.launch(Manifest.permission.CAMERA)
         }
 
         // 저장 버튼 클릭 이벤트
@@ -84,15 +95,29 @@ class ParkingLocationFragment : Fragment() {
         }
     }
 
-    private fun createImageFileUri(): Uri? {
-        val contentValues = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, "photo_${System.currentTimeMillis()}.jpg")
-            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+    private fun launchCamera() {
+        photoUri = createImageFileUri()
+        if (photoUri != null) {
+            takePictureLauncher.launch(photoUri)
+        } else {
+            Toast.makeText(requireContext(), "사진 저장 공간을 생성하지 못했습니다.", Toast.LENGTH_SHORT).show()
         }
-        return requireActivity().contentResolver.insert(
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            contentValues
-        )
+    }
+
+    private fun createImageFileUri(): Uri? {
+        return try {
+            val contentValues = ContentValues().apply {
+                put(MediaStore.Images.Media.DISPLAY_NAME, "photo_${System.currentTimeMillis()}.jpg")
+                put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            }
+            requireActivity().contentResolver.insert(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues
+            )
+        } catch (e: Exception) {
+            Log.e("CameraError", "이미지 URI 생성 실패: ${e.message}")
+            null
+        }
     }
 
     override fun onDestroyView() {

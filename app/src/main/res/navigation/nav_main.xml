@@ -8,7 +8,17 @@
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.example.parklog.MainFragment"
-        android:label="MainFragment" />
+        android:label="MainFragment" >
+        <action
+            android:id="@+id/action_mainFragment_to_parkingLocationFragment"
+            app:destination="@id/parkingLocationFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_parkingLocationListFragment"
+            app:destination="@id/parkingLocationListFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_carLogFragment"
+            app:destination="@id/carLogFragment" />
+    </fragment>
 
     <!-- ParkingLocationFragment -->
     <fragment
