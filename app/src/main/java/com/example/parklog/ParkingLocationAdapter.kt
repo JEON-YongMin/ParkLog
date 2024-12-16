@@ -5,20 +5,33 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.parklog.databinding.ListParkingBinding
 
 class ParkingLocationAdapter(
-    private var parkingList: MutableList<ParkingLocationData>,
-    private val onDeleteClicked: (Int) -> Unit,
-    private val onEditClicked: (Int, String, String) -> Unit
-) : RecyclerView.Adapter<ParkingLocationAdapter.ViewHolder>() {
+    private val onDeleteClicked: (ParkingLocationData) -> Unit,
+    private val onEditClicked: (ParkingLocationData) -> Unit
+) : ListAdapter<ParkingLocationData, ParkingLocationAdapter.ViewHolder>(DIFF_CALLBACK) {
 
-    inner class ViewHolder(val binding: ListParkingBinding) :
+    companion object {
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<ParkingLocationData>() {
+            override fun areItemsTheSame(oldItem: ParkingLocationData, newItem: ParkingLocationData): Boolean {
+                return oldItem.photoUri == newItem.photoUri
+            }
+
+            override fun areContentsTheSame(oldItem: ParkingLocationData, newItem: ParkingLocationData): Boolean {
+                return oldItem == newItem
+            }
+        }
+    }
+
+    inner class ViewHolder(private val binding: ListParkingBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(data: ParkingLocationData, position: Int) {
+        fun bind(data: ParkingLocationData) {
             binding.txtLocation.text = data.location
             binding.txtFee.text = data.fee
             binding.txtTimestamp.text = data.timestamp
@@ -27,16 +40,19 @@ class ParkingLocationAdapter(
                 .load(data.photoUri)
                 .into(binding.imageView3)
 
+            // 이미지 확대
             binding.imageView3.setOnClickListener {
                 showImageDialog(binding.root.context, data.photoUri)
             }
 
+            // 삭제 버튼
             binding.btnDelete.setOnClickListener {
-                onDeleteClicked(position)
+                onDeleteClicked(data)
             }
 
+            // 수정 버튼
             binding.btnEdit.setOnClickListener {
-                onEditClicked(position, data.location, data.fee)
+                onEditClicked(data)
             }
         }
     }
@@ -51,15 +67,7 @@ class ParkingLocationAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(parkingList[position], position)
-    }
-
-    override fun getItemCount(): Int = parkingList.size
-
-    fun updateData(newList: List<ParkingLocationData>) {
-        parkingList.clear()
-        parkingList.addAll(newList)
-        notifyDataSetChanged()
+        holder.bind(getItem(position)) // getItem 사용
     }
 
     private fun showImageDialog(context: Context, imageUrl: String) {

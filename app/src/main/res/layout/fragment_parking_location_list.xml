@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#FFFDE7"
     android:padding="0dp"
-    tools:context=".ParkingLocationList">
+    tools:context=".ParkingLocationListFragment">
 
     <!-- 상단 바 -->
     <androidx.constraintlayout.widget.ConstraintLayout
