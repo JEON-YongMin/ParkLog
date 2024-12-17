@@ -21,6 +21,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
@@ -36,6 +37,7 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var googleMap: GoogleMap
     private val polylinePoints = mutableListOf<LatLng>()
+    private var currentPolyline: Polyline? = null
     private var locationCallback: LocationCallback? = null
 
     private var startLocation: LatLng? = null
@@ -132,6 +134,9 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
 
+        // 기존 Polyline 삭제
+        clearPreviousPolyline()
+
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationResult.locations.forEach { location ->
@@ -139,7 +144,8 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
                     polylinePoints.add(currentLatLng)
 
                     // 실시간으로 Polyline 그리기
-                    googleMap.addPolyline(
+                    currentPolyline?.remove() // 기존 Polyline 제거
+                    currentPolyline = googleMap.addPolyline(
                         PolylineOptions()
                             .addAll(polylinePoints)
                             .color(android.graphics.Color.BLUE)
@@ -166,6 +172,24 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
             fusedLocationClient.removeLocationUpdates(it)
             locationCallback = null
         }
+    }
+
+    // 기존 Polyline 제거 함수
+    private fun clearPreviousPolyline() {
+        currentPolyline?.remove() // 기존 Polyline 제거
+        currentPolyline = null
+        polylinePoints.clear() // Polyline 좌표 초기화
+    }
+
+    private fun resetLocationData() {
+        startLocation = null
+        endLocation = null
+        startLocationName = null
+        endLocationName = null
+        recordDate = null
+
+        // 기존 Polyline 초기화
+        clearPreviousPolyline()
     }
 
     private fun handleMileageButtonClick() {
@@ -274,14 +298,6 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
             totalDistance += results[0]
         }
         return (totalDistance / 1000).toInt()
-    }
-
-    private fun resetLocationData() {
-        startLocation = null
-        endLocation = null
-        startLocationName = null
-        endLocationName = null
-        recordDate = null
     }
 
     private fun showAddFuelDialog() {
