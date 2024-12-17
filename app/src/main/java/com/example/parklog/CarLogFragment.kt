@@ -29,7 +29,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 class CarLogFragment : Fragment(), OnMapReadyCallback {
 
     private var _binding: FragmentCarLogBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding ?: throw IllegalStateException("ViewBinding is null")
 
     private val viewModel: CarLogViewModel by viewModels()
 
@@ -61,27 +61,31 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun initUI() {
-        adapter = RecentRecordsAdapter(mutableListOf())
-        binding.recyclerRecentRecords.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerRecentRecords.adapter = adapter
+        _binding?.let { binding ->
+            adapter = RecentRecordsAdapter(mutableListOf())
+            binding.recyclerRecentRecords.layoutManager = LinearLayoutManager(requireContext())
+            binding.recyclerRecentRecords.adapter = adapter
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
 
-        binding.homeButton.setOnClickListener {
-            startActivity(Intent(requireContext(), MainActivity::class.java))
+            binding.homeButton.setOnClickListener {
+                startActivity(Intent(requireContext(), MainActivity::class.java))
+            }
+            binding.btnAddMileage.setOnClickListener { handleMileageButtonClick() }
+            binding.btnAddFuel.setOnClickListener { showAddFuelDialog() }
         }
-        binding.btnAddMileage.setOnClickListener { handleMileageButtonClick() }
-        binding.btnAddFuel.setOnClickListener { showAddFuelDialog() }
     }
 
     private fun observeViewModel() {
-        viewModel.records.observe(viewLifecycleOwner) { records ->
-            adapter.updateRecords(records)
-        }
+        _binding?.let { binding ->
+            viewModel.records.observe(viewLifecycleOwner) { records ->
+                adapter.updateRecords(records)
+            }
 
-        viewModel.cumulativeData.observe(viewLifecycleOwner) { (mileage, fuelCost) ->
-            binding.totalMileageValue.text = "$mileage km"
-            binding.totalFuelCostValue.text = "₩$fuelCost"
+            viewModel.cumulativeData.observe(viewLifecycleOwner) { (mileage, fuelCost) ->
+                binding.totalMileageValue.text = "$mileage km"
+                binding.totalFuelCostValue.text = "₩$fuelCost"
+            }
         }
     }
 

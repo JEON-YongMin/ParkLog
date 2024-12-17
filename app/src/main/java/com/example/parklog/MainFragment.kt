@@ -17,7 +17,8 @@ import com.example.parklog.viewmodel.MainViewModel
 class MainFragment : Fragment() {
 
     private var _binding: FragmentMainBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding ?: throw IllegalStateException("ViewBinding is null")
+
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreateView(
@@ -31,6 +32,7 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // ViewModel 관찰 및 UI 이벤트 처리
         viewModel.connectedCar.observe(viewLifecycleOwner) { car ->
             binding.connectedCarText.text = car
         }
@@ -50,9 +52,11 @@ class MainFragment : Fragment() {
         binding.parkingLocationButton.setOnClickListener {
             findNavController().navigate(R.id.parkingLocationFragment)
         }
+
         binding.myParkingListButton.setOnClickListener {
             findNavController().navigate(R.id.parkingLocationListFragment)
         }
+
         binding.carLogButton.setOnClickListener {
             findNavController().navigate(R.id.carLogFragment)
         }
