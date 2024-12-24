@@ -15,12 +15,12 @@ import com.example.parklog.databinding.FragmentMainBinding
 import com.example.parklog.viewmodel.MainViewModel
 
 class MainFragment : Fragment() {
-
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding ?: throw IllegalStateException("ViewBinding is null")
 
     private val viewModel: MainViewModel by viewModels()
 
+    // View 생성
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -29,10 +29,10 @@ class MainFragment : Fragment() {
         return binding.root
     }
 
+    // UI 초기화 및 ViewModel 관찰
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // ViewModel 관찰 및 UI 이벤트 처리
         viewModel.connectedCar.observe(viewLifecycleOwner) { car ->
             binding.connectedCarText.text = car
         }
@@ -86,6 +86,7 @@ class MainFragment : Fragment() {
             .show()
     }
 
+    // ViewBinding 해제
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

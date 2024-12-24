@@ -20,6 +20,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.*
@@ -34,6 +35,7 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
     private val viewModel: CarLogViewModel by viewModels()
 
     private lateinit var adapter: RecentRecordsAdapter
+
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var googleMap: GoogleMap
     private val polylinePoints = mutableListOf<LatLng>()
@@ -46,6 +48,7 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
     private var endLocationName: String? = null
     private var recordDate: String? = null
 
+    // View 생성
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -53,6 +56,7 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
         return binding.root
     }
 
+    // UI 초기화 및 ViewModel 관찰
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initUI()
@@ -60,6 +64,7 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
         initMap()
     }
 
+    // UI 초기화
     private fun initUI() {
         _binding?.let { binding ->
             adapter = RecentRecordsAdapter(mutableListOf())
@@ -76,6 +81,7 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
+    // ViewModel 관찰
     private fun observeViewModel() {
         _binding?.let { binding ->
             viewModel.records.observe(viewLifecycleOwner) { records ->
@@ -90,7 +96,7 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun initMap() {
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map_fragment) as SupportMapFragment
+        val mapFragment = binding.mapFragment.getFragment<SupportMapFragment>()
         mapFragment.getMapAsync(this)
     }
 
@@ -129,26 +135,33 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
         )
     }
 
+    private fun resetLocationData() {
+        startLocation = null
+        endLocation = null
+        startLocationName = null
+        endLocationName = null
+        recordDate = null
+    }
+
+    private fun clearPreviousPolyline() {
+        currentPolyline?.remove()
+        currentPolyline = null
+        polylinePoints.clear()
+    }
+
     // 위치 추적 시작
     private fun startLocationTracking() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext())
-        val locationRequest = LocationRequest.create().apply {
-            interval = 3000 // 위치 업데이트 주기 (3초)
-            fastestInterval = 2000
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        }
 
-        // 기존 Polyline 삭제
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 3000).build()
+
         clearPreviousPolyline()
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
-                locationResult.locations.forEach { location ->
+                for (location in locationResult.locations) {
                     val currentLatLng = LatLng(location.latitude, location.longitude)
                     polylinePoints.add(currentLatLng)
-
-                    // 실시간으로 Polyline 그리기
-                    currentPolyline?.remove() // 기존 Polyline 제거
                     currentPolyline = googleMap.addPolyline(
                         PolylineOptions()
                             .addAll(polylinePoints)
@@ -160,11 +173,12 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
         }
 
         if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION
+                requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION
             ) == android.content.pm.PackageManager.PERMISSION_GRANTED
         ) {
-            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback!!, Looper.getMainLooper())
+            locationCallback?.let { callback ->
+                fusedLocationClient.requestLocationUpdates(locationRequest, callback, Looper.getMainLooper())
+            }
         } else {
             requestLocationPermission()
         }
@@ -178,24 +192,7 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    // 기존 Polyline 제거 함수
-    private fun clearPreviousPolyline() {
-        currentPolyline?.remove() // 기존 Polyline 제거
-        currentPolyline = null
-        polylinePoints.clear() // Polyline 좌표 초기화
-    }
-
-    private fun resetLocationData() {
-        startLocation = null
-        endLocation = null
-        startLocationName = null
-        endLocationName = null
-        recordDate = null
-
-        // 기존 Polyline 초기화
-        clearPreviousPolyline()
-    }
-
+    // 주행 기록 시작&종료
     private fun handleMileageButtonClick() {
         if (ActivityCompat.checkSelfPermission(
                 requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -212,13 +209,13 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
                 val currentLatLng = LatLng(it.latitude, it.longitude)
                 if (startLocation == null) {
                     startLocation = currentLatLng
-                    polylinePoints.clear() // 경로 초기화
-                    startLocationTracking() // 위치 추적 시작
+                    polylinePoints.clear()
+                    startLocationTracking()
                     googleMap.addMarker(MarkerOptions().position(currentLatLng).title("출발 위치"))
                     showLocationDialog("출발 위치 입력", true)
                 } else if (endLocation == null) {
                     endLocation = currentLatLng
-                    stopLocationTracking() // 위치 추적 중지
+                    stopLocationTracking()
                     googleMap.addMarker(MarkerOptions().position(currentLatLng).title("도착 위치"))
                     showLocationDialog("도착 위치 입력", false)
                 }
@@ -233,7 +230,6 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
     private fun showLocationDialog(title: String, isStart: Boolean) {
         val dialogBinding = StartLocationBinding.inflate(LayoutInflater.from(requireContext()))
 
-        // 힌트 값 명확하게 설정
         if (isStart) {
             dialogBinding.inputStartLocation.hint = "출발 위치를 입력하세요"
             dialogBinding.inputStartLocation.setText("")
@@ -286,20 +282,23 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    // Polyline 경로를 따라 총 이동 거리 계산
     private fun calculateTotalDistance(points: List<LatLng>): Int {
         var totalDistance = 0f
+
         for (i in 0 until points.size - 1) {
             val start = points[i]
             val end = points[i + 1]
-            val results = FloatArray(1)
 
-            android.location.Location.distanceBetween(
-                start.latitude, start.longitude,
-                end.latitude, end.longitude,
-                results
-            )
-            totalDistance += results[0]
+            val startLocation = android.location.Location("").apply {
+                latitude = start.latitude
+                longitude = start.longitude
+            }
+            val endLocation = android.location.Location("").apply {
+                latitude = end.latitude
+                longitude = end.longitude
+            }
+
+            totalDistance += startLocation.distanceTo(endLocation)
         }
         return (totalDistance / 1000).toInt()
     }
@@ -323,6 +322,7 @@ class CarLogFragment : Fragment(), OnMapReadyCallback {
             .show()
     }
 
+    // ViewBinding 해제
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

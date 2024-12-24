@@ -7,6 +7,7 @@ import com.example.parklog.databinding.MileageRecordBinding
 import com.example.parklog.databinding.FuelRecordBinding
 import com.example.parklog.model.RecordData
 
+// RecyclerView와 데이터 연결
 class RecentRecordsAdapter(private var recordList: MutableList<RecordData>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -44,7 +45,6 @@ class RecentRecordsAdapter(private var recordList: MutableList<RecordData>) :
         notifyDataSetChanged()
     }
 
-    // ViewHolder for mileage records
     class MileageViewHolder(private val binding: MileageRecordBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(record: RecordData) {
@@ -55,13 +55,12 @@ class RecentRecordsAdapter(private var recordList: MutableList<RecordData>) :
         }
     }
 
-    // ViewHolder for fuel records
     class FuelViewHolder(private val binding: FuelRecordBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(record: RecordData) {
             binding.date.text = record.date
             binding.stationName.text = "주유소: ${record.stationName}"
-            binding.pricePerLiter.text = "가격: ${record.pricePerLiter} ₩/L"
+            binding.pricePerLiter.text = "가격: ${record.pricePerLiter} 원/L"
             binding.distance.text = "주행 거리: ${record.distance} km"
             binding.totalCost.text = "총 비용: ₩${record.totalCost}"
         }

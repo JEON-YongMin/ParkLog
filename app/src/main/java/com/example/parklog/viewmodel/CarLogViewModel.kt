@@ -13,7 +13,7 @@ class CarLogViewModel : ViewModel() {
     private val _records = MutableLiveData<List<RecordData>>()
     val records: LiveData<List<RecordData>> get() = _records
 
-    private val _cumulativeData = MutableLiveData<Pair<Int, Int>>() // (totalMileage, totalFuelCost)
+    private val _cumulativeData = MutableLiveData<Pair<Int, Int>>()
     val cumulativeData: LiveData<Pair<Int, Int>> get() = _cumulativeData
 
     init {
@@ -31,8 +31,11 @@ class CarLogViewModel : ViewModel() {
     }
 
     fun addRecord(record: RecordData) {
-        repository.addRecord(record, onSuccess = {
-            fetchRecords()
-        }, onFailure = {})
+        repository.addRecord(record,
+            onSuccess = {
+                fetchRecords()
+            },
+            onFailure = {}
+        )
     }
 }

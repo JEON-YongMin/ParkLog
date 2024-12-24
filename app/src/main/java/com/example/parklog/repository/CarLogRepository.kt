@@ -4,7 +4,6 @@ import com.example.parklog.model.RecordData
 import com.google.firebase.database.*
 
 class CarLogRepository {
-
     private val database: DatabaseReference = FirebaseDatabase.getInstance().reference
 
     fun fetchRecords(
@@ -17,7 +16,7 @@ class CarLogRepository {
                 var totalMileage = 0
                 var totalFuelCost = 0
 
-                snapshot.children.forEach { child ->
+                for (child in snapshot.children) {
                     val record = child.getValue(RecordData::class.java)
                     if (record != null) {
                         records.add(record)
@@ -25,7 +24,6 @@ class CarLogRepository {
                         totalFuelCost += record.totalCost
                     }
                 }
-
                 onSuccess(records.sortedByDescending { it.timestamp }, Pair(totalMileage, totalFuelCost))
             }
 
